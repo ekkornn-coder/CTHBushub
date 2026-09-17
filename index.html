@@ -7,8 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-<!-- Leaflet.js CSS for the Map -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
 <style>
@@ -19,7 +17,7 @@
   --amber:#F59E0B; --amber-bg:#FFFBEB; --amber-text:#92400E;
   --red:#EF4444; --red-bg:#FEE2E2; --red-text:#B91C1C;
   --text-primary:#0F172A; --text-secondary:#64748B; --text-muted:#94A3B8;
-  --border:#E5E9F2; --row-hover:#F8FAFF;
+  --border:#E5E9F2; --row-hover:#F8FAFF; --soft:#F1F5F9;
   --bg-gradient:linear-gradient(135deg,#F5F9FF 0%,#EEF2FF 50%,#F0FDF4 100%);
   --radius-card:12px; --radius-btn:8px;
   --shadow-card:0 1px 3px rgba(15,23,42,.04), 0 4px 12px rgba(15,23,42,.04);
@@ -33,311 +31,256 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 .hidden{display:none !important}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--blue-light);outline-offset:2px}
 
 /* ---------- Sidebar ---------- */
-.sidebar{
-  width:252px; flex-shrink:0; background:#FFFFFF;
-  border-right:1px solid var(--border);
-  display:flex; flex-direction:column; z-index:20;
-}
-.brand{display:flex; align-items:center; gap:10px; padding:18px 16px 14px}
-.brand-mark{
-  width:36px;height:36px;border-radius:10px;flex-shrink:0;
-  background:linear-gradient(135deg,#3B82F6 0%,#1D4ED8 100%);
-  box-shadow:0 4px 12px rgba(37,99,235,.28);
-  display:flex;align-items:center;justify-content:center;font-size:18px
-}
+.sidebar{width:252px;flex-shrink:0;background:#FFFFFF;border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;padding:18px 16px 14px}
+.brand-mark{width:36px;height:36px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,#3B82F6 0%,#1D4ED8 100%);box-shadow:0 4px 12px rgba(37,99,235,.28);display:flex;align-items:center;justify-content:center;font-size:18px}
 .brand-name{font-size:16px;font-weight:700;letter-spacing:-.2px;line-height:1.15}
 .brand-sub{font-size:10px;color:var(--text-muted);font-weight:500;margin-top:2px}
-
 .nav-links{display:flex;flex-direction:column;gap:4px;padding:6px 12px;flex-grow:1}
-.nav-caption{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.6px;padding:12px 12px 6px}
-.nav-btn{
-  display:flex;align-items:center;gap:11px;width:100%;
-  background:none;border:none;border-radius:8px;cursor:pointer;
-  padding:10px 12px;font:inherit;font-size:13px;font-weight:500;
-  color:var(--text-secondary);text-align:left;transition:all .18s ease;
-}
+.nav-btn{display:flex;align-items:center;gap:11px;width:100%;background:none;border:none;border-radius:8px;cursor:pointer;padding:10px 12px;font:inherit;font-size:13px;font-weight:500;color:var(--text-secondary);text-align:left;transition:all .18s ease}
 .nav-btn .ico{font-size:15px;width:20px;text-align:center;filter:grayscale(.5);opacity:.8}
 .nav-btn:hover{background:#F8FAFF;color:var(--text-primary)}
 .nav-btn.active{background:var(--blue-wash);color:var(--blue);font-weight:600}
 .nav-btn.active .ico{filter:none;opacity:1}
-
+.nav-sep{height:1px;background:var(--border);margin:8px 4px}
 .sidebar-foot{padding:12px 14px;border-top:1px solid var(--border)}
-.admin-btn{
-  width:100%;background:#FFFFFF;color:var(--blue);border:1px solid var(--blue-border);
-  border-radius:var(--radius-btn);padding:9px;font:inherit;font-size:12px;font-weight:600;
-  cursor:pointer;transition:all .2s ease;
-}
+.admin-btn{width:100%;background:#FFFFFF;color:var(--blue);border:1px solid var(--blue-border);border-radius:var(--radius-btn);padding:9px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s ease}
 .admin-btn:hover{background:var(--blue-wash)}
-.admin-btn.logged-in{
-  background:linear-gradient(135deg,#34D399 0%,#10B981 100%);
-  color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(16,185,129,.28);
-}
+.admin-btn.logged-in{background:linear-gradient(135deg,#34D399 0%,#10B981 100%);color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(16,185,129,.28)}
 
 /* ---------- Main ---------- */
 .main{flex-grow:1;display:flex;flex-direction:column;min-width:0}
-.topbar{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:14px 24px;background:rgba(255,255,255,.72);backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--border);flex-shrink:0;
-}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 24px;background:rgba(255,255,255,.72);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);flex-shrink:0}
 .page-title{font-size:18px;font-weight:700;letter-spacing:-.4px}
 .page-sub{font-size:12px;color:var(--text-secondary);margin-top:3px}
 .top-meta{display:flex;align-items:center;gap:8px}
-.chip{
-  background:var(--blue-wash);color:var(--blue-dark);border-radius:999px;
-  padding:4px 10px;font-size:11px;font-weight:600;white-space:nowrap;
-}
+.chip{background:var(--blue-wash);color:var(--blue-dark);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:600;white-space:nowrap}
+.chip.blue{background:var(--blue-wash);color:var(--blue-dark)}
 .chip.green{background:var(--green-light);color:var(--green-dark)}
-.chip.amber{background:var(--amber-bg);color:var(--amber-text); border:1px solid #FDE68A;}
-
+.chip.amber{background:var(--amber-bg);color:var(--amber-text);border:1px solid #FDE68A}
+.chip.red{background:var(--red-bg);color:var(--red-text)}
 .scroll-area{flex-grow:1;overflow-y:auto;padding:16px 24px 24px}
 .wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
-
-.card{
-  background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius-card);
-  box-shadow:var(--shadow-card);padding:18px 20px;
-}
-.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.tab-content{display:flex;flex-direction:column;gap:16px}
+.card{background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius-card);box-shadow:var(--shadow-card);padding:18px 20px}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .card-title{font-size:15px;font-weight:600;letter-spacing:-.2px}
+.card-title .en{color:var(--text-muted);font-weight:400;font-size:12px}
 .card-note{font-size:11px;color:var(--text-muted)}
+.schedule-banner{width:100%;border-radius:12px;object-fit:cover;max-height:250px;border:1px solid var(--border)}
 
-.schedule-banner { width: 100%; border-radius: 12px; object-fit: cover; max-height: 250px; margin-bottom: 16px; border: 1px solid var(--border); }
-
-/* ---------- KPI row (Admin Only) ---------- */
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px; margin-bottom: 16px;}
-.kpi{
-  background:#FFFFFF;border:1px solid var(--border);border-radius:10px;
-  box-shadow:var(--shadow-card);padding:14px 16px;
-}
-.kpi-label{font-size:11px;font-weight:500;color:var(--text-muted);letter-spacing:.2px}
+/* ---------- KPI ---------- */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{background:#FFFFFF;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-card);padding:14px 16px}
+.kpi-label{font-size:11px;font-weight:500;color:var(--text-muted)}
 .kpi-value{font-size:24px;font-weight:700;margin-top:4px;letter-spacing:-.5px;line-height:1.1}
-.kpi-value.blue{color:var(--blue)}
-.kpi-value.green{color:var(--green)}
+.kpi-value.blue{color:var(--blue)} .kpi-value.green{color:var(--green)}
 .kpi-value.sm{font-size:16px;letter-spacing:-.3px;padding-top:6px}
-.kpi-foot{font-size:11px;color:var(--text-secondary);margin-top:4px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi-foot{font-size:11px;color:var(--text-secondary);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* ---------- Selectors ---------- */
 .field{margin-bottom:14px}
 .field:last-child{margin-bottom:0}
-.field-label{
-  font-size:11px;font-weight:600;color:var(--text-secondary);
-  margin-bottom:6px;display:flex;align-items:center;gap:6px;
-}
+.field-label{font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;display:flex;align-items:center;gap:6px}
 .field-label .en{color:var(--text-muted);font-weight:500}
-
-.zone-grid, .line-grid, .time-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-
-.pick{
-  border:1px solid var(--border);background:#FFFFFF;color:var(--text-secondary);
-  border-radius:var(--radius-btn);cursor:pointer;font:inherit;
-  font-size:12px;font-weight:500; padding:6px 10px;text-align:center;
-  transition:all .15s ease; line-height:1.2; flex: 1 1 auto;
-}
+.zone-grid,.line-grid,.time-grid{display:flex;flex-wrap:wrap;gap:6px}
+.pick{border:1px solid var(--border);background:#FFFFFF;color:var(--text-secondary);border-radius:var(--radius-btn);cursor:pointer;font:inherit;font-size:12px;font-weight:500;padding:6px 10px;text-align:center;transition:all .15s ease;line-height:1.2;flex:1 1 auto}
 .pick:hover{border-color:var(--blue-border);background:var(--blue-wash);color:var(--blue-dark)}
-.pick.active{
-  background:linear-gradient(135deg,#3B82F6 0%,#1D4ED8 100%);color:#fff;
-  border-color:transparent;font-weight:600;box-shadow:0 2px 6px rgba(37,99,235,.2);
-}
+.pick.active{background:linear-gradient(135deg,#3B82F6 0%,#1D4ED8 100%);color:#fff;border-color:transparent;font-weight:600;box-shadow:0 2px 6px rgba(37,99,235,.2)}
+.pick small{display:block;font-size:10px;font-weight:500;opacity:.75;margin-top:2px}
+.zone-pick{font-weight:600;min-width:calc(25% - 6px)}
+.line-pick{min-width:calc(33.333% - 6px)}
+.time-pick{min-width:calc(25% - 6px)}
+.time-bar{background:linear-gradient(135deg,#F5F9FF 0%,#EEF2FF 100%);border:1px solid var(--blue-border);border-radius:10px;padding:10px 12px}
 
-.zone-pick{font-weight:600; min-width: calc(25% - 6px);}
-.line-pick{min-width: calc(33.333% - 6px);}
-.time-pick{background:#FFFFFF; min-width: calc(25% - 6px);}
-.time-pick small{display:none;}
-.time-bar{ background:linear-gradient(135deg,#F5F9FF 0%,#EEF2FF 100%); border:1px solid var(--blue-border);border-radius:10px;padding:10px 12px; }
-
-/* ---------- Admin toolbar ---------- */
-.admin-bar{
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-  background:#FFFFFF;border:1px dashed var(--blue-border);border-radius:10px;
-  padding:12px 14px; margin-bottom: 16px;
-}
+/* ---------- Buttons ---------- */
+.admin-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#FFFFFF;border:1px dashed var(--blue-border);border-radius:10px;padding:12px 14px}
 .admin-bar-title{font-size:12px;font-weight:600;color:var(--blue-dark);margin-right:auto}
-.btn{border:none;border-radius:var(--radius-btn);cursor:pointer;font:inherit;
-  font-size:11px;font-weight:600;padding:6px 10px;transition:all .2s ease}
-.btn-primary{background:linear-gradient(135deg,#3B82F6 0%,#1D4ED8 100%);color:#fff;}
-.btn-positive{background:linear-gradient(135deg,#34D399 0%,#10B981 100%);color:#fff;}
+.btn{border:none;border-radius:var(--radius-btn);cursor:pointer;font:inherit;font-size:11px;font-weight:600;padding:7px 11px;transition:all .2s ease;white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:linear-gradient(135deg,#3B82F6 0%,#1D4ED8 100%);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.2)}
+.btn-primary:hover{background:linear-gradient(135deg,#2563EB 0%,#1E40AF 100%)}
+.btn-positive{background:linear-gradient(135deg,#34D399 0%,#10B981 100%);color:#fff}
 .btn-ghost{background:#FFFFFF;color:var(--blue);border:1px solid var(--blue-border)}
+.btn-ghost:hover{background:var(--blue-wash)}
+.btn-ghost.on{background:var(--blue-wash);border-color:var(--blue);color:var(--blue-dark)}
+.btn-danger{background:var(--red-bg);color:var(--red-text)}
+.btn-soft{background:var(--soft);color:var(--text-primary)}
+.btn-soft:hover{background:#E2E8F0}
 
-/* ---------- View toggle ---------- */
-.toggle{display:inline-flex;background:#F1F5F9;border-radius:999px;padding:3px;gap:2px}
-.toggle button{
-  border:none;background:transparent;border-radius:999px;cursor:pointer;font:inherit;
-  font-size:11px;font-weight:600;color:var(--text-secondary);padding:6px 14px;transition:all .2s ease;
-}
+.toggle{display:inline-flex;background:var(--soft);border-radius:999px;padding:3px;gap:2px}
+.toggle button{border:none;background:transparent;border-radius:999px;cursor:pointer;font:inherit;font-size:11px;font-weight:600;color:var(--text-secondary);padding:6px 14px;transition:all .2s ease}
 .toggle button.active{background:#FFFFFF;color:var(--blue);box-shadow:0 1px 3px rgba(15,23,42,.08)}
 
 /* ---------- Table ---------- */
 .table-shell{overflow-x:auto;border-radius:8px;border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse;font-size:13px;min-width:400px}
-th{
-  background:#F8FAFF;font-size:10px;font-weight:600;color:var(--text-muted);
-  letter-spacing:.5px;text-transform:uppercase;text-align:left;
-  padding:10px 12px;border-bottom:1px solid var(--border);
-}
-td{padding:10px 12px;border-bottom:1px solid #F1F5F9;color:var(--text-secondary);vertical-align:middle}
+th{background:#F8FAFF;font-size:10px;font-weight:600;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;text-align:left;padding:10px 12px;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid var(--soft);color:var(--text-secondary);vertical-align:middle}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:var(--row-hover)}
-.round-badge{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:24px;height:24px;border-radius:6px;background:var(--blue-wash);
-  color:var(--blue-dark);font-weight:700;font-size:11px;
-}
+.round-badge{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:var(--blue-wash);color:var(--blue-dark);font-weight:700;font-size:11px}
 .time-cell{font-weight:600;color:var(--text-primary);font-variant-numeric:tabular-nums}
 .map-link{color:var(--blue);text-decoration:none;font-weight:500}
 .map-link:hover{text-decoration:underline}
+.nocoord{color:var(--text-muted);font-size:11px;margin-left:6px}
 .empty{text-align:center;padding:24px 16px;color:var(--text-muted);font-size:12px}
 .empty .big{font-size:20px;display:block;margin-bottom:6px;opacity:.6}
-.action-btn{border:none;border-radius:6px;cursor:pointer;font:inherit;font-size:11px;
-  font-weight:600;padding:4px 8px;margin-right:4px}
+.action-btn{border:none;border-radius:6px;cursor:pointer;font:inherit;font-size:11px;font-weight:600;padding:4px 8px;margin-right:4px}
 .edit-btn{background:var(--blue-wash);color:var(--blue-dark)}
 .del-btn{background:var(--red-bg);color:var(--red-text)}
-
-.img-link {
-  display: inline-flex; align-items: center; gap: 4px; font-size: 11px;
-  background: var(--amber-bg); color: var(--amber-text); padding: 3px 8px;
-  border-radius: 6px; text-decoration: none; margin-left: 8px; font-weight: 600; border: 1px solid #FDE68A;
-}
-.img-link:hover { background: #FDE68A; }
+.img-link{display:inline-flex;align-items:center;gap:4px;font-size:11px;background:var(--amber-bg);color:var(--amber-text);padding:3px 8px;border-radius:6px;text-decoration:none;margin-left:8px;font-weight:600;border:1px solid #FDE68A}
 
 /* ---------- Timeline ---------- */
 .timeline{position:relative;padding:4px 0 4px 2px}
 .tl-item{position:relative;display:flex;gap:12px;padding:0 0 16px 0}
 .tl-item:last-child{padding-bottom:0}
 .tl-rail{position:relative;flex-shrink:0;width:12px;display:flex;justify-content:center}
-.tl-dot{width:10px;height:10px;border-radius:50%;background:var(--blue);
-  border:2px solid #fff;box-shadow:0 0 0 2px var(--blue-border);margin-top:6px;z-index:1}
+.tl-dot{width:10px;height:10px;border-radius:50%;background:var(--blue);border:2px solid #fff;box-shadow:0 0 0 2px var(--blue-border);margin-top:6px;z-index:1}
 .tl-item:last-child .tl-dot{background:var(--green);box-shadow:0 0 0 2px var(--green-light)}
 .tl-line{position:absolute;top:20px;bottom:-4px;width:2px;background:var(--blue-border)}
 .tl-item:last-child .tl-line{display:none}
-.tl-body{flex-grow:1;background:#FFFFFF;border:1px solid var(--border);border-radius:10px;
-  padding:10px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.tl-time{background:var(--blue-wash);color:var(--blue-dark);border-radius:6px;
-  padding:4px 8px;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}
-.tl-round{font-size:10px;font-weight:600;color:var(--text-muted);}
+.tl-body{flex-grow:1;background:#FFFFFF;border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tl-time{background:var(--blue-wash);color:var(--blue-dark);border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}
+.tl-round{font-size:10px;font-weight:600;color:var(--text-muted)}
 .tl-loc{font-size:13px;font-weight:500;color:var(--text-primary)}
 
 /* ---------- Contacts ---------- */
 .zone-block{margin-bottom:20px}
 .zone-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
-.zone-head h3{font-size:13px;font-weight:600;color:var(--text-primary)}
+.zone-head h3{font-size:13px;font-weight:600}
 .contact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
-.contact-card{
-  background:#FFFFFF;border:1px solid var(--border);border-radius:10px;padding:12px;
-  display:flex;gap:12px;align-items:center;
-}
-.avatar{
-  width:32px;height:32px;border-radius:8px;flex-shrink:0;display:flex;
-  align-items:center;justify-content:center;font-weight:700;font-size:13px;
-  background:var(--blue-wash);color:var(--blue-dark);
-}
-.contact-name{font-size:13px;font-weight:600;color:var(--text-primary);line-height:1.3}
+.contact-card{background:#FFFFFF;border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;gap:12px;align-items:center}
+.avatar{width:32px;height:32px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;background:var(--blue-wash);color:var(--blue-dark)}
+.contact-name{font-size:13px;font-weight:600;line-height:1.3}
 .contact-person{font-size:11px;color:var(--text-secondary);margin-top:3px}
 
-/* ---------- Simple content cards ---------- */
 .info-card{border-left:3px solid var(--blue)}
 .info-card p{font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:12px}
-.link-btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;
-  background:linear-gradient(135deg,#3B82F6 0%,#1D4ED8 100%);color:#fff;
-  border-radius:var(--radius-btn);padding:8px 16px;font-size:12px;font-weight:600; cursor:pointer; border:none;}
+.link-btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:linear-gradient(135deg,#3B82F6 0%,#1D4ED8 100%);color:#fff;border-radius:var(--radius-btn);padding:8px 16px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;border:none}
+.link-btn.big{width:100%;justify-content:center;padding:14px;font-size:15px;box-shadow:0 4px 12px rgba(37,99,235,.3)}
+.link-btn.green{background:linear-gradient(135deg,#10B981 0%,#047857 100%);box-shadow:0 4px 12px rgba(4,120,87,.25)}
 
-/* ---------- Announcement Dashboard ---------- */
-.announce{
-  display:flex;align-items:center;gap:12px;flex-shrink:0;
-  background:var(--amber-bg);border-top:1px solid #FDE68A;padding:10px 20px;
-}
-.announce-icon{width:28px;height:28px;border-radius:8px;background:#FEF3C7;
-  display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.announce h4{font-size:11px;font-weight:600;color:var(--amber-text);}
-.announce p{font-size:13px;color:#78350F;margin-top:2px}
-.announce .spacer{margin-left:auto}
+/* ---------- Announcement ---------- */
+.announce{display:flex;align-items:center;gap:12px;flex-shrink:0;background:var(--amber-bg);border-top:1px solid #FDE68A;padding:10px 20px}
+.announce-icon{width:28px;height:28px;border-radius:8px;background:#FEF3C7;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.announce h4{font-size:11px;font-weight:600;color:var(--amber-text)}
+.announce p{font-size:13px;color:#78350F;margin-top:2px;font-weight:500}
+.announce-split{display:flex;gap:20px}
+.announce-list{flex:1;border-right:1px solid var(--border);padding-right:10px;max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.announce-list .pick{width:100%;text-align:left;flex:none}
+.announce-group{font-weight:700;font-size:11px;margin:10px 0 4px;color:var(--text-secondary)}
+.announce-editor{flex:2;display:flex;flex-direction:column}
+.announce-textarea{flex-grow:1;width:100%;border:1px solid var(--border);border-radius:8px;padding:12px;font-family:inherit;font-size:13px;resize:vertical;min-height:150px;outline:none}
+.announce-textarea:focus{border-color:var(--blue)}
 
-.announce-split { display:flex; gap:20px; }
-.announce-list { flex:1; border-right:1px solid var(--border); padding-right:10px; max-height:400px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; }
-.announce-editor { flex:2; display:flex; flex-direction:column; }
-.announce-textarea { flex-grow:1; width:100%; border:1px solid var(--border); border-radius:8px; padding:12px; font-family:inherit; font-size:13px; resize:vertical; min-height:150px; outline:none; transition: border 0.2s; }
-.announce-textarea:focus { border-color: var(--blue); }
+/* ---------- Nearest ---------- */
+.hint{font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6}
+.hint b{color:var(--blue)}
+.nearest-head{font-size:15px;font-weight:700;color:var(--blue-dark);margin-bottom:12px}
+.nearest-card{border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px;background:#fff}
+.nc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.nc-title{font-weight:600;font-size:14px}
+.nc-dist{background:var(--blue-wash);color:var(--blue-dark);padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap}
+.nc-details{font-size:12px;color:var(--text-secondary);display:flex;gap:10px;flex-wrap:wrap}
+.nc-foot{display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap}
 
-/* ---------- Nearest Stops UI ---------- */
-.nearest-card {
-  border: 1px solid var(--border); border-radius: 10px; padding: 14px;
-  margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;
-  background: #fff; transition: box-shadow 0.2s;
-}
-.nearest-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-.nc-head { display: flex; justify-content: space-between; align-items: flex-start; }
-.nc-title { font-weight: 600; font-size: 14px; color: var(--text-primary); }
-.nc-dist { background: var(--blue-wash); color: var(--blue-dark); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-.nc-details { font-size: 12px; color: var(--text-secondary); display: flex; gap: 10px; }
-.nc-foot { display: flex; justify-content: flex-end; margin-top: 4px; }
-.btn-small { padding: 6px 12px; font-size: 11px; background: var(--secondary); color: var(--dark); border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
-.btn-small:hover { background: #e2e8f0; }
+/* ---------- Route map ---------- */
+.rm-controls{display:grid;grid-template-columns:1fr 1.4fr 1fr auto;gap:12px;align-items:end}
+.select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:13px;background:#fff;color:var(--text-primary)}
+.rm-switches{display:flex;flex-direction:column;gap:6px}
+.switch{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);cursor:pointer;white-space:nowrap}
+.switch input{accent-color:var(--blue);width:15px;height:15px}
+.rm-grid{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(280px,1fr);gap:16px;align-items:stretch}
+.rm-map-card{padding:10px;display:flex;flex-direction:column;gap:8px}
+.route-map{height:560px;width:100%;border-radius:8px;z-index:1}
+.route-map.adding{cursor:crosshair}
+.rm-status{font-size:12px;color:var(--text-secondary);padding:2px 4px;min-height:18px}
+.rm-status.warn{color:var(--amber-text)} .rm-status.err{color:var(--red-text)} .rm-status.ok{color:var(--green-dark)}
+.rm-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--text-secondary);padding:0 4px}
+.rm-legend span{display:inline-flex;align-items:center;gap:5px}
+.rm-list-card{display:flex;flex-direction:column;padding:14px}
+.rm-list{overflow-y:auto;max-height:540px;display:flex;flex-direction:column;gap:6px;padding-right:2px}
+.rm-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;cursor:pointer;background:#fff;transition:background .15s}
+.rm-item:hover,.rm-item.sel{background:var(--blue-wash);border-color:var(--blue-border)}
+.rm-item-main{flex:1;min-width:0}
+.rm-item-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rm-item-sub{font-size:11px;color:var(--text-secondary);margin-top:2px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.rm-item-sub b{color:var(--text-primary);font-variant-numeric:tabular-nums}
+.rm-item-act{display:flex;gap:4px}
+.badge{border-radius:999px;padding:1px 8px;font-size:10px;font-weight:600;white-space:nowrap}
+.badge.ok{background:var(--green-light);color:var(--green-dark)}
+.badge.warn{background:var(--amber-bg);color:var(--amber-text);border:1px solid #FDE68A}
+.badge.far{background:var(--red-bg);color:var(--red-text)}
+.badge.none{background:var(--soft);color:var(--text-muted)}
 
-/* ---------- Admin Modal & Map ---------- */
-.modal-overlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
-  z-index: 100; display: flex; align-items: center; justify-content: center;
-}
-.modal-card {
-  background: #fff; width: 90%; max-width: 500px; border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column;
-}
-.modal-header {
-  padding: 16px 20px; border-bottom: 1px solid var(--border);
-  display: flex; justify-content: space-between; align-items: center;
-}
-.modal-header h3 { font-size: 16px; color: var(--dark); }
-.modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); }
-.modal-body { padding: 20px; overflow-y: auto; max-height: 70vh; }
-.modal-map { height: 250px; width: 100%; border-radius: 8px; border: 1px solid var(--border); margin-top: 6px; z-index: 10; }
-.modal-footer {
-  padding: 16px 20px; border-top: 1px solid var(--border); background: #f8fafc;
-  display: flex; justify-content: flex-end; gap: 10px;
-}
-.input-field {
-  width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px;
-  font-family: inherit; font-size: 13px; color: var(--text-primary); transition: border .2s;
-}
-.input-field:focus { border-color: var(--blue); outline: none; }
-.input-row { display: flex; gap: 10px; }
-.input-row > div { flex: 1; }
+/* Numbered pins */
+.pin{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font:700 11px/1 Inter,sans-serif;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(15,23,42,.3)}
+.pin.ok{background:var(--green)} .pin.warn{background:var(--amber)} .pin.far{background:var(--red)}
+.pin.sm{width:22px;height:22px;font-size:10px;flex-shrink:0;box-shadow:none;border:none}
+.pin.user{background:var(--blue-dark);width:18px;height:18px;box-shadow:0 0 0 6px rgba(37,99,235,.2)}
+.pin.near{background:var(--green)}
+.leaflet-popup-content{font-family:'Inter','Noto Sans Thai',sans-serif;font-size:12px;margin:10px 12px}
+.pop-title{font-weight:700;font-size:13px;margin-bottom:2px}
+.pop-sub{color:var(--text-secondary);margin-bottom:8px}
+.pop-act{display:flex;gap:4px;flex-wrap:wrap}
 
-/* ---------- Mobile Responsive Overrides ---------- */
+/* Quality */
+.q-list{display:flex;flex-direction:column;gap:6px}
+.q-item{display:flex;gap:10px;align-items:flex-start;font-size:12px;padding:8px 10px;border-radius:8px;background:#FAFBFF;border:1px solid var(--border)}
+.q-item .q-txt{flex:1;color:var(--text-secondary);line-height:1.5}
+.q-item .q-txt b{color:var(--text-primary)}
+
+/* ---------- Modal ---------- */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center}
+.modal-card{background:#fff;width:92%;max-width:560px;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,.15);overflow:hidden;display:flex;flex-direction:column;max-height:94vh}
+.modal-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-header h3{font-size:16px}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-muted)}
+.modal-body{padding:18px 20px;overflow-y:auto}
+.modal-map{height:260px;width:100%;border-radius:8px;border:1px solid var(--border);z-index:10}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);background:#f8fafc;display:flex;justify-content:flex-end;gap:10px}
+.input-field{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px;color:var(--text-primary)}
+.input-field:focus{border-color:var(--blue);outline:none}
+.input-row{display:flex;gap:10px}
+.input-row > *{flex:1}
+.pin-tools{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.pin-note{font-size:11px;color:var(--text-secondary);min-height:16px;margin-top:6px}
+
+/* ---------- Toast ---------- */
+.toast-box{position:fixed;right:16px;bottom:70px;z-index:2000;display:flex;flex-direction:column;gap:8px}
+.toast{background:#0F172A;color:#fff;font-size:13px;padding:10px 14px;border-radius:10px;box-shadow:0 6px 18px rgba(15,23,42,.25);max-width:340px}
+.toast.ok{background:var(--green-dark)} .toast.err{background:var(--red-text)} .toast.warn{background:var(--amber-text)}
+
+/* ---------- Mobile ---------- */
+@media (max-width:980px){
+  .rm-grid{grid-template-columns:1fr}
+  .route-map{height:420px}
+  .rm-list{max-height:none}
+  .rm-controls{grid-template-columns:1fr 1fr}
+}
 @media (max-width:860px){
   body{flex-direction:column;overflow:auto}
-  .sidebar{
-    width:100%;flex-direction:row;align-items:center;gap:4px;
-    border-right:none;border-bottom:1px solid var(--border);
-    padding:0 8px;overflow-x:auto; white-space: nowrap;
-  }
-  .sidebar::-webkit-scrollbar { display: none; }
-  .brand{padding:10px 4px;}
-  .brand-sub{display:none}
+  .sidebar{width:100%;flex-direction:row;align-items:center;gap:4px;border-right:none;border-bottom:1px solid var(--border);padding:0 8px;overflow-x:auto;white-space:nowrap}
+  .sidebar::-webkit-scrollbar{display:none}
+  .brand{padding:10px 4px}
+  .brand-sub,.nav-sep{display:none}
   .nav-links{flex-direction:row;padding:6px 0;gap:4px;flex-grow:1}
-  .nav-caption{display:none}
-  .nav-btn{padding:8px 10px; font-size:12px;}
+  .nav-btn{padding:8px 10px;font-size:12px}
   .sidebar-foot{border-top:none;padding:6px 0}
-  .admin-btn{padding:8px 12px;}
   .topbar{padding:12px 16px;flex-wrap:wrap}
   .scroll-area{padding:12px 16px}
-  .card{padding:14px;}
-  .announce{padding:12px 16px}
-  .zone-pick{min-width: calc(50% - 6px);}
-  .line-pick{min-width: calc(50% - 6px);}
-  .time-pick{min-width: calc(50% - 6px);}
-  .kpi-row{grid-template-columns:repeat(2,1fr); gap:10px;}
-  .kpi{padding:12px;}
-  .kpi-value{font-size:18px;}
-  .kpi-value.sm{font-size:14px;}
-  .announce-split { flex-direction: column; }
-  .announce-list { border-right: none; border-bottom: 1px solid var(--border); padding-right:0; padding-bottom:10px; }
+  .card{padding:14px}
+  .zone-pick,.line-pick,.time-pick{min-width:calc(50% - 6px)}
+  .kpi-row{grid-template-columns:repeat(2,1fr);gap:10px}
+  .announce-split{flex-direction:column}
+  .announce-list{border-right:none;border-bottom:1px solid var(--border);padding-right:0;padding-bottom:10px}
 }
-@media (min-width: 601px) {
-    .time-pick small { display:block; }
-}
+@media (max-width:600px){ .pick small.opt{display:none} .rm-controls{grid-template-columns:1fr} }
+@media (prefers-reduced-motion:reduce){ *{transition:none !important} }
 </style>
 </head>
 <body>
@@ -346,25 +289,20 @@ tbody tr:hover{background:var(--row-hover)}
 <aside class="sidebar">
   <div class="brand">
     <div class="brand-mark">🚌</div>
-    <div>
-      <div class="brand-name">CTH BusHub</div>
-      <div class="brand-sub">Employee Transport</div>
-    </div>
+    <div><div class="brand-name">CTH BusHub</div><div class="brand-sub">Employee Transport</div></div>
   </div>
-
   <nav class="nav-links">
-    <button class="nav-btn active" data-tab="nearest" onclick="switchMainTab('nearest', this)"><span class="ico">📍</span> จุดขึ้นรถใกล้ฉัน</button>
-    <button class="nav-btn" data-tab="schedule" onclick="switchMainTab('schedule', this)"><span class="ico">📅</span> ตารางรถ</button>
-    <button class="nav-btn" data-tab="contacts" onclick="switchMainTab('contacts', this)"><span class="ico">📞</span> ผู้ประสานงาน</button>
-    <button class="nav-btn" data-tab="address" onclick="switchMainTab('address', this)"><span class="ico">🏠</span> แจ้งที่อยู่</button>
-    <button class="nav-btn" data-tab="feedback" onclick="switchMainTab('feedback', this)"><span class="ico">💬</span> Feedback</button>
-    
-    <!-- Admin Only Menu -->
-    <button class="nav-btn admin-col hidden" data-tab="adminAnnounceTab" onclick="switchMainTab('adminAnnounceTab', this); renderAnnounceEditor();"><span class="ico">📢</span> จัดการประกาศ</button>
+    <button class="nav-btn active" data-tab="nearest"><span class="ico">📍</span> จุดขึ้นรถใกล้ฉัน</button>
+    <button class="nav-btn" data-tab="schedule"><span class="ico">📅</span> ตารางรถ</button>
+    <button class="nav-btn" data-tab="routemap"><span class="ico">🗺️</span> แผนที่สายรถ</button>
+    <button class="nav-btn" data-tab="contacts"><span class="ico">📞</span> ผู้ประสานงาน</button>
+    <button class="nav-btn" data-tab="address"><span class="ico">🏠</span> แจ้งที่อยู่</button>
+    <button class="nav-btn" data-tab="feedback"><span class="ico">💬</span> Feedback</button>
+    <div class="nav-sep admin-col hidden"></div>
+    <button class="nav-btn admin-col hidden" data-tab="adminAnnounceTab"><span class="ico">📢</span> จัดการประกาศ</button>
   </nav>
-
   <div class="sidebar-foot">
-    <button id="adminBtn" class="admin-btn" onclick="toggleAdmin()">🔑 Admin Login</button>
+    <button id="adminBtn" class="admin-btn">🔑 Admin Login</button>
   </div>
 </aside>
 
@@ -372,149 +310,146 @@ tbody tr:hover{background:var(--row-hover)}
 <main class="main">
   <header class="topbar">
     <div>
-      <div class="page-title" id="topTitle">ค้นหาจุดขึ้นรถที่ใกล้ที่สุด</div>
-      <div class="page-sub" id="topSub">Find Nearest Pick-up Point</div>
+      <div class="page-title" id="topTitle"></div>
+      <div class="page-sub" id="topSub"></div>
     </div>
     <div class="top-meta">
       <span class="chip" id="chipDate"></span>
-      <span class="chip green" id="chipStatus">● Live</span>
+      <span class="chip amber hidden admin-col">Admin mode</span>
     </div>
   </header>
 
   <div class="scroll-area">
     <div class="wrap">
 
-      <!-- ---------- NEAREST POINT FINDER (Default Active) ---------- -->
+      <!-- ---------- NEAREST ---------- -->
       <section id="nearest" class="tab-content">
         <div class="card">
-          <div class="card-head">
-            <div class="card-title">ค้นหาจุดขึ้นรถที่ใกล้คุณที่สุด</div>
+          <div class="card-head"><div class="card-title">ค้นหาจุดขึ้นรถที่ใกล้คุณที่สุด</div></div>
+          <p class="hint">ระบบใช้ GPS หาป้ายรถที่ใกล้ที่สุด<br>ถ้าไม่ได้อยู่ที่บ้าน ให้<b>ลากหมุดสีน้ำเงิน</b>หรือ<b>แตะบนแผนที่</b>เพื่อเลือกตำแหน่ง</p>
+          <button id="findNearestBtn" class="link-btn big">📍 ใช้ตำแหน่งปัจจุบัน (Use my location)</button>
+          <div id="nearestMapWrapper" class="hidden" style="margin-top:16px">
+            <div id="nearestMapContainer" class="modal-map" style="height:300px;margin-bottom:12px"></div>
           </div>
-          <p style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">
-            ระบบจะใช้ GPS เพื่อค้นหาป้ายรถรับส่งที่อยู่ใกล้คุณที่สุด<br>
-            <span style="color:var(--blue);">💡 หากไม่ได้อยู่ตำแหน่งปัจจุบัน คุณสามารถ<b>ลากหมุดสีน้ำเงิน</b>บนแผนที่เพื่อระบุตำแหน่งที่ต้องการได้</span>
-          </p>
-          
-          <button id="findNearestBtn" class="link-btn" onclick="findNearestStops()" style="width:100%; justify-content:center; padding:14px; font-size:15px; box-shadow: 0 4px 12px rgba(37,99,235,0.3);">
-            📍 ดึงตำแหน่งปัจจุบัน (Get Current Location)
-          </button>
-          
-          <div id="nearestMapWrapper" class="hidden" style="margin-top: 20px;">
-            <div id="nearestMapContainer" class="modal-map" style="margin-top: 0; margin-bottom: 12px; height: 280px;"></div>
-            
-            <button id="refreshNearestBtn" class="link-btn" onclick="refreshNearestStops()" style="width:100%; justify-content:center; padding:14px; font-size:15px; background:var(--green-dark); color:#fff; box-shadow: 0 4px 12px rgba(4,120,87,0.3);">
-              🔄 อัปเดตจุดขึ้นรถจากหมุดสีน้ำเงิน (Refresh from Pin)
-            </button>
-          </div>
-          
-          <div id="nearestResults" style="margin-top: 24px;">
-             <!-- Results injected here -->
-          </div>
+          <div id="nearestResults" style="margin-top:16px"></div>
         </div>
       </section>
 
       <!-- ---------- SCHEDULE ---------- -->
       <section id="schedule" class="tab-content hidden">
-        <img id="bannerImage" class="schedule-banner hidden" src="" alt="Bus Schedule Banner" />
+        <img id="bannerImage" class="schedule-banner hidden" src="" alt="Bus schedule banner">
 
-        <div class="kpi-row admin-col hidden" id="kpiDashboard">
-          <div class="kpi">
-            <div class="kpi-label">จำนวนรอบ / Total</div>
-            <div class="kpi-value blue" id="kpiRounds">0</div>
-            <div class="kpi-foot" id="kpiRoundsFoot">รอบในช่วงเวลานี้</div>
+        <div class="kpi-row admin-col hidden">
+          <div class="kpi"><div class="kpi-label">จำนวนจุด / Stops</div><div class="kpi-value blue" id="kpiRounds">0</div><div class="kpi-foot">จุดในรอบนี้</div></div>
+          <div class="kpi"><div class="kpi-label">จุดแรก / First</div><div class="kpi-value" id="kpiFirst">–</div><div class="kpi-foot" id="kpiFirstFoot">ไม่มีข้อมูล</div></div>
+          <div class="kpi"><div class="kpi-label">จุดสุดท้าย / Last</div><div class="kpi-value green" id="kpiLast">–</div><div class="kpi-foot" id="kpiLastFoot">ไม่มีข้อมูล</div></div>
+          <div class="kpi"><div class="kpi-label">ต้องตรวจ / To check</div><div class="kpi-value sm" id="kpiIssues">–</div><div class="kpi-foot">ดูรายละเอียดในแผนที่สายรถ</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-title">เลือกเส้นทาง <span class="en">/ Select route</span></div></div>
+          <div class="field"><div class="field-label">พื้นที่โซน <span class="en">/ Zone</span></div><div id="zoneButtonsContainer" class="zone-grid"></div></div>
+          <div class="field"><div class="field-label">สายรถ <span class="en">/ Line</span></div><div id="lineButtonsContainer" class="line-grid"></div></div>
+          <div class="field">
+            <div class="time-bar">
+              <div class="field-label">เวลารับโดยประมาณ <span class="en">/ Shift</span></div>
+              <div class="time-grid" id="shiftButtons"></div>
+            </div>
           </div>
-          <div class="kpi">
-            <div class="kpi-label">รอบแรก / First</div>
-            <div class="kpi-value" id="kpiFirst">–</div>
-            <div class="kpi-foot" id="kpiFirstFoot">ไม่มีข้อมูล</div>
-          </div>
-          <div class="kpi">
-            <div class="kpi-label">รอบสุดท้าย / Last</div>
-            <div class="kpi-value green" id="kpiLast">–</div>
-            <div class="kpi-foot" id="kpiLastFoot">ไม่มีข้อมูล</div>
-          </div>
-          <div class="kpi">
-            <div class="kpi-label">ผู้ประสานงาน / Coord</div>
-            <div class="kpi-value sm" id="kpiCoord">–</div>
-            <div class="kpi-foot" id="kpiCoordFoot">ติดต่อสายรถนี้</div>
-          </div>
+        </div>
+
+        <div class="admin-bar admin-col hidden">
+          <div class="admin-bar-title">⚙️ Admin tools <span id="adminCurrentViewLabel" style="font-weight:500"></span></div>
+          <button class="btn btn-ghost" data-act="banner">🖼️ Banner</button>
+          <button class="btn btn-positive" data-act="addZone">+ Zone</button>
+          <button class="btn btn-positive" data-act="addLine">+ Line</button>
+          <button class="btn btn-ghost" data-act="renameLine">✏️ Rename line</button>
+          <button class="btn btn-danger" data-act="deleteLine">🗑 Delete line</button>
+          <button class="btn btn-positive" data-act="addStop">+ Stop</button>
+          <button class="btn btn-ghost" data-act="csvTemplate">⬇️ CSV template</button>
+          <button class="btn btn-primary" data-act="csvUpload">⬆️ Upload CSV</button>
+          <button class="btn btn-ghost" data-act="exportJson">💾 Backup</button>
+          <button class="btn btn-ghost" data-act="importJson">📂 Restore</button>
+          <input type="file" id="csvFileInput" accept=".csv" hidden>
+          <input type="file" id="jsonFileInput" accept=".json" hidden>
         </div>
 
         <div class="card">
           <div class="card-head">
-            <div class="card-title">เลือกเส้นทาง <span style="color:var(--text-muted);font-weight:400;font-size:12px">/ Select Route</span></div>
-          </div>
-
-          <div class="field">
-            <div class="field-label">พื้นที่โซน <span class="en">/ Zone</span></div>
-            <div id="zoneButtonsContainer" class="zone-grid"></div>
-          </div>
-
-          <div class="field">
-            <div class="field-label">สายรถ <span class="en">/ Line</span></div>
-            <div id="lineButtonsContainer" class="line-grid"></div>
-          </div>
-
-          <div class="field">
-            <div class="time-bar">
-              <div class="field-label">เวลารับโดยประมาณ <span class="en">/ Time</span></div>
-              <div class="time-grid">
-                <button class="pick time-pick active" onclick="selectShift('t0730', this)">เช้า 07:30<small>Morning in</small></button>
-                <button class="pick time-pick" onclick="selectShift('t1930', this)">ดึก 19:30<small>Night in</small></button>
-                <button class="pick time-pick" onclick="selectShift('t1700', this)">กลับ 17:00<small>Day out</small></button>
-                <button class="pick time-pick" onclick="selectShift('t0500', this)">กลับ 05:00<small>Night out</small></button>
+            <div class="card-title">จุดรับ-ส่ง <span class="en" id="routeSummary">/ Stops</span></div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <button class="btn btn-ghost" id="openOnMapBtn">🗺️ ดูบนแผนที่</button>
+              <div class="toggle">
+                <button id="btnTableView" class="active">Table</button>
+                <button id="btnTimelineView">Timeline</button>
               </div>
             </div>
           </div>
-        </div>
-
-        <div id="adminToolbar" class="admin-bar hidden">
-          <div class="admin-bar-title">⚙️ Admin Tools<span id="adminCurrentViewLabel"></span></div>
-          <button class="btn btn-ghost" onclick="editBanner()">🖼️ Set Banner</button>
-          <!-- Dynamic Admin additions -->
-          <button class="btn btn-positive" onclick="addZone()">+ Add Zone</button>
-          <button class="btn btn-positive" onclick="addLine()">+ Add Line</button>
-          <button class="btn btn-positive" onclick="openModal('add')">+ Add Stop</button>
-          <button class="btn btn-ghost" onclick="downloadCSVTemplate()">⬇️ Template</button>
-          <button class="btn btn-primary" onclick="triggerFileUpload()">⬆️ Upload CSV</button>
-          <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="handleFileUpload(event)">
-        </div>
-
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title">จุดรับ-ส่ง <span style="color:var(--text-muted);font-weight:400;font-size:12px" id="routeSummary">/ Stops</span></div>
-            <div class="toggle">
-              <button id="btnTableView" class="active" onclick="switchView('table')">Table</button>
-              <button id="btnMapView" onclick="switchView('map')">Timeline</button>
-            </div>
-          </div>
-
           <div id="tableViewContainer" class="table-shell">
             <table>
-              <thead>
-                <tr>
-                  <th style="width:50px">Round</th>
-                  <th style="width:70px">Time</th>
-                  <th>Location / Map</th>
-                  <th class="admin-col hidden" style="width:120px">Actions</th>
-                </tr>
-              </thead>
+              <thead><tr><th style="width:50px">Stop</th><th style="width:70px">Time</th><th>Location / Map</th><th class="admin-col hidden" style="width:120px">Actions</th></tr></thead>
               <tbody id="tableBody"></tbody>
             </table>
           </div>
+          <div id="timelineContainer" class="hidden"><div id="timelineBody" class="timeline"></div></div>
+        </div>
+      </section>
 
-          <div id="mapViewContainer" class="hidden">
-            <div id="mapBody" class="timeline"></div>
+      <!-- ---------- ROUTE MAP ---------- -->
+      <section id="routemap" class="tab-content hidden">
+        <div class="card">
+          <div class="rm-controls">
+            <label><div class="field-label">โซน <span class="en">/ Zone</span></div><select id="rmZone" class="select"></select></label>
+            <label><div class="field-label">สายรถ <span class="en">/ Line</span></div><select id="rmLine" class="select"></select></label>
+            <label><div class="field-label">รอบ <span class="en">/ Shift</span></div><select id="rmShift" class="select"></select></label>
+            <div class="rm-switches">
+              <label class="switch"><input type="checkbox" id="rmRoad" checked> เส้นทางตามถนน</label>
+              <label class="switch"><input type="checkbox" id="rmAll"> แสดงจุดสายอื่น</label>
+            </div>
           </div>
+        </div>
+
+        <div class="admin-bar admin-col hidden">
+          <div class="admin-bar-title">⚙️ แก้ไขจุดบนแผนที่ <span style="font-weight:500;color:var(--text-secondary)">— ลากหมุดเพื่อย้าย</span></div>
+          <button class="btn btn-ghost" id="rmAddBtn">➕ แตะแผนที่เพื่อเพิ่มจุด</button>
+          <button class="btn btn-primary" id="rmCheckBtn">🛣️ ตรวจระยะถึงถนนหลัก</button>
+          <button class="btn btn-positive" id="rmSnapAllBtn" disabled>✨ ย้ายจุดที่ใกล้ถนนเข้าถนน</button>
+          <button class="btn btn-ghost" id="rmCheckAllBtn">📋 ตรวจทุกสาย</button>
+        </div>
+
+        <div class="rm-grid">
+          <div class="card rm-map-card">
+            <div id="routeMap" class="route-map"></div>
+            <div class="rm-legend hidden" id="rmLegend">
+              <span><i class="pin sm ok"></i> ≤ 30 m จากถนนหลัก</span>
+              <span><i class="pin sm warn"></i> 30–150 m (Snap ได้)</span>
+              <span><i class="pin sm far"></i> &gt; 150 m (ต้องปักหมุดใหม่)</span>
+            </div>
+            <div class="rm-status" id="rmStatus"></div>
+          </div>
+          <div class="card rm-list-card">
+            <div class="card-head" style="margin-bottom:10px"><div class="card-title">จุดจอด <span class="en" id="rmCount"></span></div></div>
+            <div id="rmList" class="rm-list"></div>
+          </div>
+        </div>
+
+        <div class="card admin-col hidden">
+          <div class="card-head">
+            <div class="card-title">ตรวจคุณภาพข้อมูล <span class="en">/ Data check</span></div>
+            <div class="card-note">เวลาผิดลำดับ, ระยะห่างที่รถวิ่งไม่ทัน, ชื่อซ้ำพิกัดต่าง</div>
+          </div>
+          <div id="rmQuality" class="q-list"></div>
+        </div>
+        <div class="card admin-col hidden" id="allLinesCard" style="display:none">
+          <div class="card-head"><div class="card-title">ผลตรวจทุกสาย <span class="en">/ All lines</span></div></div>
+          <div class="table-shell"><table><thead><tr><th>Line</th><th>Shift</th><th>Stops</th><th>ไม่มีพิกัด</th><th>≤30 m</th><th>30–150 m</th><th>&gt;150 m</th></tr></thead><tbody id="allLinesBody"></tbody></table></div>
         </div>
       </section>
 
       <!-- ---------- CONTACTS ---------- -->
       <section id="contacts" class="tab-content hidden">
         <div class="card">
-          <div class="card-head">
-            <div class="card-title">ผู้ประสานงานประจำสาย</div>
-          </div>
+          <div class="card-head"><div class="card-title">ผู้ประสานงานประจำสาย</div></div>
           <div id="contactsContainer"></div>
         </div>
       </section>
@@ -524,7 +459,7 @@ tbody tr:hover{background:var(--row-hover)}
         <div class="card info-card">
           <div class="card-title" style="margin-bottom:8px">แจ้ง / แก้ไขที่อยู่</div>
           <p>ใช้แบบฟอร์มนี้เพื่อแจ้งจุดขึ้น-ลงรถใหม่ หรือแก้ไขที่อยู่ปัจจุบันของท่าน</p>
-          <a href="https://script.google.com/a/macros/celestica.com/s/AKfycbz9mssDeOlVcYyKh1fEn41XdhqGbEfoYZulDaiyQYrvFOgeMmBz8rtfaDxXWzfTDaQH/exec" target="_blank" class="link-btn">📍 เปิดแบบฟอร์ม</a>
+          <a href="https://script.google.com/a/macros/celestica.com/s/AKfycbz9mssDeOlVcYyKh1fEn41XdhqGbEfoYZulDaiyQYrvFOgeMmBz8rtfaDxXWzfTDaQH/exec" target="_blank" rel="noopener" class="link-btn">📍 เปิดแบบฟอร์ม</a>
         </div>
       </section>
 
@@ -534,36 +469,27 @@ tbody tr:hover{background:var(--row-hover)}
           <div class="card-title" style="margin-bottom:8px">แจ้งปัญหา / ข้อเสนอแนะ</div>
           <div id="feedbackContent" class="hidden">
             <p>รถมาช้า รถไม่มา หรือมีข้อเสนอแนะเรื่องเส้นทาง แจ้งได้ที่แบบฟอร์มนี้</p>
-            <a id="feedbackLinkBtn" href="#" target="_blank" class="link-btn">📝 เปิดแบบฟอร์ม</a>
+            <a id="feedbackLinkBtn" href="#" target="_blank" rel="noopener" class="link-btn">📝 เปิดแบบฟอร์ม</a>
           </div>
-          <p id="feedbackEmptyMsg" style="color:#888;">ยังไม่มีลิงก์สำหรับแจ้งปัญหา (Link not added yet)</p>
-          <button class="btn btn-ghost admin-col hidden" onclick="editFeedbackLink()" style="margin-top:12px;">⚙️ Edit Feedback Link</button>
+          <p id="feedbackEmptyMsg" style="color:var(--text-muted)">ยังไม่มีลิงก์สำหรับแจ้งปัญหา</p>
+          <button class="btn btn-ghost admin-col hidden" data-act="feedbackLink" style="margin-top:12px;align-self:flex-start">⚙️ Edit feedback link</button>
         </div>
       </section>
-      
-      <!-- ---------- ADMIN ANNOUNCE DASHBOARD ---------- -->
-      <section id="adminAnnounceTab" class="tab-content hidden admin-col">
+
+      <!-- ---------- ADMIN ANNOUNCE ---------- -->
+      <section id="adminAnnounceTab" class="tab-content hidden">
         <div class="card">
           <div class="card-head">
-            <div class="card-title">จัดการประกาศ (Manage Announcements)</div>
-            <div class="card-note">ประกาศจะแสดงที่ด้านล่างของหน้าจอตามสายที่พนักงานเลือก</div>
+            <div class="card-title">จัดการประกาศ</div>
+            <div class="card-note">ถ้าสายมีประกาศของตัวเอง จะแสดงแทนประกาศรวม</div>
           </div>
-          
           <div class="announce-split">
-             <div class="announce-list" id="announceLineList">
-                 <!-- Populated by JS -->
-             </div>
-             
-             <div class="announce-editor">
-                 <h4 id="announceEditorTitle" style="font-size:14px; margin-bottom:8px; color:var(--blue-dark);">ประกาศรวมทุกสาย (Global)</h4>
-                 <p style="font-size:11px; color:var(--text-secondary); margin-bottom:10px;">
-                     หากสายรถมีประกาศเฉพาะของตัวเอง ระบบจะแสดงประกาศเฉพาะสายนั้น หากไม่มีจะแสดงประกาศรวม
-                 </p>
-                 <textarea id="announceEditorText" class="announce-textarea" placeholder="พิมพ์ข้อความประกาศที่นี่... (เว้นว่างไว้เพื่อลบ)"></textarea>
-                 <div style="text-align:right; margin-top:12px;">
-                     <button class="btn btn-primary" onclick="saveAnnouncement()">บันทึกประกาศ (Save)</button>
-                 </div>
-             </div>
+            <div class="announce-list" id="announceLineList"></div>
+            <div class="announce-editor">
+              <h4 id="announceEditorTitle" style="font-size:14px;margin-bottom:8px;color:var(--blue-dark)">ประกาศรวมทุกสาย (Global)</h4>
+              <textarea id="announceEditorText" class="announce-textarea" placeholder="พิมพ์ข้อความประกาศ... (เว้นว่างเพื่อลบ)"></textarea>
+              <div style="text-align:right;margin-top:12px"><button class="btn btn-primary" id="saveAnnounceBtn">บันทึกประกาศ</button></div>
+            </div>
           </div>
         </div>
       </section>
@@ -573,838 +499,1281 @@ tbody tr:hover{background:var(--row-hover)}
 
   <div class="announce">
     <div class="announce-icon">📢</div>
-    <div style="flex-grow:1;">
-      <h4>ประกาศ / ANNOUNCEMENTS</h4>
-      <p id="announcementText" style="font-size:13px; font-weight:500;"></p>
-    </div>
+    <div style="flex-grow:1"><h4>ประกาศ / Announcements</h4><p id="announcementText"></p></div>
   </div>
 </main>
 
-<!-- ================= ADMIN MAP MODAL ================= -->
-<div id="roundModal" class="modal-overlay hidden">
+<!-- ================= STOP MODAL ================= -->
+<div id="stopModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="modal-card">
     <div class="modal-header">
-      <h3 id="modalTitle">Edit Stop</h3>
-      <button class="modal-close" onclick="closeModal()">×</button>
+      <h3 id="modalTitle">Edit stop</h3>
+      <button class="modal-close" id="modalCloseX" aria-label="Close">×</button>
     </div>
     <div class="modal-body">
       <div class="input-row">
-        <div class="field">
-          <label class="field-label">Time <span class="en">(e.g. 06:00)</span></label>
-          <input type="text" id="modalTime" class="input-field" placeholder="06:00">
+        <div class="field"><label class="field-label" for="modalTime">เวลา <span class="en">/ Time</span></label><input type="time" id="modalTime" class="input-field"></div>
+        <div class="field" style="flex:2"><label class="field-label" for="modalLoc">ชื่อจุด <span class="en">/ Location</span></label><input type="text" id="modalLoc" class="input-field" placeholder="เช่น หน้าเซเว่น ซอย 10"></div>
+      </div>
+      <div class="field"><label class="field-label" for="modalImg">ลิงก์รูปสถานที่ <span class="en">/ Image URL (optional)</span></label><input type="url" id="modalImg" class="input-field" placeholder="https://..."></div>
+
+      <div class="field">
+        <label class="field-label">พิกัด <span class="en">/ Pin — ลากหมุด หรือแตะแผนที่</span></label>
+        <div class="input-row">
+          <input type="text" id="modalLat" class="input-field" placeholder="Latitude" inputmode="decimal">
+          <input type="text" id="modalLng" class="input-field" placeholder="Longitude" inputmode="decimal">
         </div>
-      </div>
-      <div class="field">
-        <label class="field-label">Location Name</label>
-        <input type="text" id="modalLoc" class="input-field" placeholder="Bang Saen Beach">
-      </div>
-      <div class="field">
-        <label class="field-label">Image URL <span class="en">(Optional)</span></label>
-        <input type="url" id="modalImg" class="input-field" placeholder="https://...">
-      </div>
-      
-      <div class="field">
-        <label class="field-label">Pin Location <span class="en">(Drag marker to update)</span></label>
-        <div class="input-row" style="margin-bottom:8px;">
-          <input type="text" id="modalLat" class="input-field" placeholder="Latitude" readonly>
-          <input type="text" id="modalLng" class="input-field" placeholder="Longitude" readonly>
+        <div class="input-row" style="margin-top:8px">
+          <input type="text" id="modalPaste" class="input-field" placeholder="วางลิงก์ Google Maps หรือ 13.12345, 100.98765" style="flex:3">
+          <button class="btn btn-soft" id="modalPasteBtn" style="flex:1">ใช้พิกัดนี้</button>
+        </div>
+        <div class="pin-tools">
+          <button class="btn btn-ghost" id="modalGpsBtn">📍 ใช้ GPS ตอนนี้ (ยืนอยู่ที่ป้าย)</button>
+          <button class="btn btn-primary" id="modalSnapBtn">🛣️ ย้ายเข้าถนนหลักที่ใกล้ที่สุด</button>
         </div>
         <div id="modalMap" class="modal-map"></div>
+        <div class="pin-note" id="modalPinNote"></div>
       </div>
-      
-      <input type="hidden" id="modalIndex">
-      <input type="hidden" id="modalMode">
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveModal()">Save Changes</button>
+      <button class="btn btn-ghost" id="modalCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="modalSaveBtn">Save changes</button>
     </div>
   </div>
 </div>
 
-<!-- Leaflet.js script -->
+<div class="toast-box" id="toastBox" aria-live="polite"></div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
-/* ================= DYNAMIC ZONE CONFIGURATION ================= */
-// Zones and Lines are now dynamic so Admins can add them from the UI
-const defaultZonesConfig = [
-  { id:"z1", name:"Zone 1", label:"ชลบุรี / บางแสน", lines:[
-    { id:"l1", name:"บางแสน", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l18", name:"รถตู้ชลบุรี", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l21", name:"ออฟฟิตชลบุรี", defaultCoord:"ติดต่อผู้ประสานงาน" }
-  ]},
-  { id:"z2", name:"Zone 2", label:"ศรีราชา / แหลมฉบัง", lines:[
-    { id:"l2", name:"ศรีราชา", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l13", name:"เคหะ1 หน้ารร.", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l15", name:"ตู้อ่าว-ซากกยายจีน", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l17", name:"รถตู้เก้ากิโล", defaultCoord:"ติดต่อผู้ประสานงาน" }
-  ]},
-  { id:"z3", name:"Zone 3", label:"หนองขาม / บึง", lines:[
-    { id:"l7", name:"เครือ", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l8", name:"อนามัยหนองขาม", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l9", name:"บึงทอง", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l28", name:"เสริมบึงทอง", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l10", name:"อุดมกิต", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l29", name:"อุดมกิต เสริม", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l16", name:"รถตู้หนองขาม", defaultCoord:"ติดต่อผู้ประสานงาน" }
-  ]},
-  { id:"z4", name:"Zone 4", label:"พัทยา / โรงโป๊ะ", lines:[
-    { id:"l4", name:"พัทยา", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l5", name:"โรงโป๊ะ", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l6", name:"ทุ่งกราด", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l26", name:"บ้านนา", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l11", name:"ชอย 10 ปะชานาถ", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l12", name:"ชอย 10(เสริมต้นยาง)", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l27", name:"ชอย 10หนองเป็ดหาย", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l19", name:"รถตู้ก้นอ่าว", defaultCoord:"ติดต่อผู้ประสานงาน" }
-  ]}
+"use strict";
+/* =====================================================================
+   CONFIG
+   ===================================================================== */
+// ⚠️ Client-side check only = NOT secure (anyone can read page source).
+// Set USE_SERVER_AUTH = true after adding checkAdmin(pwd) in Code.gs.
+const USE_SERVER_AUTH = false;
+const ADMIN_PASSWORD_SHA256 = "c481fa47652264a8db540465ec0fbc21b38e4e51b92902b8382aaa5c2ea7ed05"; // change password → paste new hash
+
+const DEFAULT_CENTER = [13.10, 100.95];
+const PLACEHOLDER = { lat: 13.2946, lng: 100.9452 };   // old fallback coord = "no real pin"
+const OSM_TILES = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+const OSRM_URL = "https://router.project-osrm.org";      // road routing (demo server, light use)
+const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
+const MAIN_ROAD_REGEX = "^(motorway|trunk|primary|secondary|tertiary)(_link)?$"; // remove tertiary if too loose
+const ROAD_OK_M = 30, ROAD_WARN_M = 150, ROAD_SEARCH_M = 400;
+const MAX_STOPS = 30;
+const MAX_BUS_KMH = 60;   // flag legs faster than this (straight line)
+
+const LS = { zones:"cthZones_v2", contacts:"cthContacts_v2", data:"cthBusData_v10",
+             ann:"cthAnnouncements_v2", banner:"cthBanner_v1", feedback:"cthFeedback_v1" };
+
+const SHIFTS = [
+  { id:"t0730", th:"เช้า 07:30", en:"Morning in" },
+  { id:"t1930", th:"ดึก 19:30",  en:"Night in"   },
+  { id:"t1700", th:"กลับ 17:00", en:"Day out"    },
+  { id:"t0500", th:"กลับ 05:00", en:"Night out"  }
 ];
+const SHIFT_LABEL = Object.fromEntries(SHIFTS.map(s => [s.id, s.th]));
+const emptyShifts = () => Object.fromEntries(SHIFTS.map(s => [s.id, []]));
 
-let zonesConfig = JSON.parse(localStorage.getItem('cthZones_v2'));
-if(!zonesConfig) {
-    zonesConfig = defaultZonesConfig;
-    localStorage.setItem('cthZones_v2', JSON.stringify(zonesConfig));
-}
-
-const SHIFT_LABELS = { t0730:"เช้า 07:30", t1930:"ดึก 19:30", t1700:"กลับ 17:00", t0500:"กลับ 05:00" };
-
-/* ================= INITIALIZE DATA STORAGE ================= */
-let contactsData = JSON.parse(localStorage.getItem('cthContacts_v2'));
-if(!contactsData) {
-  contactsData = {};
-  zonesConfig.forEach(z => z.lines.forEach(l => { contactsData[l.id] = l.defaultCoord; }));
-  localStorage.setItem('cthContacts_v2', JSON.stringify(contactsData));
-}
-
-let scheduleData = JSON.parse(localStorage.getItem('cthBusData_v10'));
-if(!scheduleData){ 
-  scheduleData = buildEmptyData(); 
-  localStorage.setItem('cthBusData_v10', JSON.stringify(scheduleData)); 
-}
-// Automatically register arrays for any newly added lines from Admin
-zonesConfig.forEach(z => z.lines.forEach(l => {
-  if(!scheduleData[l.id]) scheduleData[l.id] = { t0730:[], t1930:[], t1700:[], t0500:[] };
-}));
-
-// Announcements logic expanded to per-line
-let announceData = JSON.parse(localStorage.getItem('cthAnnouncements_v2'));
-if(!announceData) {
-    announceData = { global: "สวมหน้ากากอนามัยและรัดเข็มขัดนิรภัยทุกครั้งที่ใช้บริการ" };
-    localStorage.setItem('cthAnnouncements_v2', JSON.stringify(announceData));
-}
-
-const savedBanner = localStorage.getItem('cthBanner_v1');
-if(savedBanner) {
-  document.getElementById('bannerImage').src = savedBanner;
-  document.getElementById('bannerImage').classList.remove('hidden');
-}
-
-const savedFeedback = localStorage.getItem('cthFeedback_v1');
-if(savedFeedback) {
-  document.getElementById('feedbackLinkBtn').href = savedFeedback;
-  document.getElementById('feedbackContent').classList.remove('hidden');
-  document.getElementById('feedbackEmptyMsg').classList.add('hidden');
-}
-
-let currentZone = zonesConfig[0].id, currentLine = zonesConfig[0].lines[0].id, currentShift = "t0730", isAdmin = false;
-let currentEditAnnounce = 'global';
-
-/* ================= INIT UI ================= */
-document.getElementById('chipDate').innerText = new Date().toLocaleDateString('en-GB',
-  { weekday:'short', day:'2-digit', month:'short', year:'numeric' });
-
-initUI();
-
-function initUI(){
-  const zoneContainer = document.getElementById('zoneButtonsContainer');
-  zoneContainer.innerHTML = '';
-  zonesConfig.forEach((z,i) => {
-    const btn = document.createElement('button');
-    btn.className = 'pick zone-pick' + (z.id === currentZone ? ' active' : '');
-    btn.innerHTML = `${z.name}<small style="display:block;font-size:10px;font-weight:500;opacity:.75;margin-top:2px">${z.label}</small>`;
-    btn.onclick = () => changeZone(z.id, btn);
-    zoneContainer.appendChild(btn);
-  });
-  
-  renderContacts();
-  changeZone(currentZone, null);
-  updateAnnouncementBanner();
-}
-
-function renderContacts() {
-  const contactsContainer = document.getElementById('contactsContainer');
-  contactsContainer.innerHTML = '';
-  zonesConfig.forEach(z => {
-    const block = document.createElement('div');
-    block.className = 'zone-block';
-    let html = `<div class="zone-head"><span class="chip">${z.name}</span><h3>${z.label}</h3></div><div class="contact-grid">`;
-    z.lines.forEach(l => {
-      const initial = l.name.trim().charAt(0).toUpperCase();
-      const currentCoord = contactsData[l.id] || "ติดต่อผู้ประสานงาน";
-      html += `<div class="contact-card">
-                 <div class="avatar">${initial}</div>
-                 <div style="flex-grow:1;">
-                   <div class="contact-name">${l.name}</div>
-                   <div class="contact-person" id="contact_lbl_${l.id}">👤 ${currentCoord}</div>
-                 </div>
-                 <button class="action-btn edit-btn admin-col hidden" onclick="editContact('${l.id}')">Edit</button>
-               </div>`;
-    });
-    html += `</div>`;
-    block.innerHTML = html;
-    contactsContainer.appendChild(block);
-  });
-  updateAdminVisibility(); 
-}
-
-/* ================= NAVIGATION ================= */
 const TAB_TITLES = {
-  schedule:["ตารางรถรับ-ส่งพนักงาน","CTH Daily Bus Schedule"],
-  nearest:["ค้นหาจุดขึ้นรถที่ใกล้ที่สุด","Find Nearest Pick-up Point"],
-  contacts:["ผู้ประสานงาน","Line Coordinators & Contacts"],
-  address:["แจ้งที่อยู่","Update Pick-up / Drop-off"],
+  nearest:["ค้นหาจุดขึ้นรถที่ใกล้ที่สุด","Find nearest pick-up point"],
+  schedule:["ตารางรถรับ-ส่งพนักงาน","CTH daily bus schedule"],
+  routemap:["แผนที่สายรถ","Route map — all stops per line"],
+  contacts:["ผู้ประสานงาน","Line coordinators & contacts"],
+  address:["แจ้งที่อยู่","Update pick-up / drop-off"],
   feedback:["Feedback","Report issues or delays"],
-  adminAnnounceTab:["จัดการประกาศ","Manage Line Announcements"]
+  adminAnnounceTab:["จัดการประกาศ","Manage line announcements"]
 };
 
-function switchMainTab(tabId, el){
-  document.querySelectorAll('.tab-content').forEach(e => e.classList.add('hidden'));
-  document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
-  document.getElementById(tabId).classList.remove('hidden');
-  el.classList.add('active');
-  document.getElementById('topTitle').innerText = TAB_TITLES[tabId][0];
-  document.getElementById('topSub').innerText  = TAB_TITLES[tabId][1];
-  
-  if(tabId === 'nearest' && mainNearestMap) {
-      setTimeout(() => { mainNearestMap.invalidateSize(); }, 200);
-  }
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const safeUrl = u => /^https?:\/\//i.test(String(u || "").trim()) ? String(u).trim() : "";
+const toMin = t => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ""); return m ? (+m[1]) * 60 + (+m[2]) : null; };
+
+function toast(msg, type = "") {
+  const el = document.createElement("div");
+  el.className = "toast " + type; el.textContent = msg;
+  $("toastBox").appendChild(el);
+  setTimeout(() => el.remove(), 3800);
 }
 
-function changeZone(zoneId, btnElement){
-  currentZone = zoneId;
-  if(btnElement){
-    document.querySelectorAll('.zone-pick').forEach(e => e.classList.remove('active'));
-    btnElement.classList.add('active');
-  }
-  
-  const zone = zonesConfig.find(z => z.id === currentZone);
-  if(!zone) return;
-  
-  const box = document.getElementById('lineButtonsContainer');
-  box.innerHTML = '';
-  
-  let foundCurrent = false;
-  zone.lines.forEach((line,i) => {
-    if(line.id === currentLine) foundCurrent = true;
-    const btn = document.createElement('button');
-    btn.className = 'pick line-pick';
-    btn.innerText = line.name;
-    btn.onclick = () => selectLine(line.id, btn);
-    box.appendChild(btn);
-  });
-  
-  // Default to first line in zone if currentLine not in this zone
-  if(!foundCurrent && zone.lines.length > 0) {
-      currentLine = zone.lines[0].id;
-  }
-  
-  // Highlight active line
-  const activeBtnArr = Array.from(box.children);
-  activeBtnArr.forEach(b => { if(b.innerText === getLineInfo(currentLine).name) b.classList.add('active'); });
-
-  renderScheduleData();
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371, r = Math.PI / 180;
+  const a = Math.sin((lat2 - lat1) * r / 2) ** 2 + Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.sin((lon2 - lon1) * r / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
 }
 
-function selectLine(lineId, btn){
-  currentLine = lineId;
-  document.querySelectorAll('.line-pick').forEach(e => e.classList.remove('active'));
-  btn.classList.add('active');
-  renderScheduleData();
+function validLatLng(lat, lng) {
+  lat = parseFloat(lat); lng = parseFloat(lng);
+  return isFinite(lat) && isFinite(lng) && lat > 5 && lat < 21 && lng > 97 && lng < 106; // Thailand box
+}
+function hasCoord(s) {
+  if (!s || !validLatLng(s.lat, s.lng)) return false;
+  return !(Math.abs(s.lat - PLACEHOLDER.lat) < 1e-6 && Math.abs(s.lng - PLACEHOLDER.lng) < 1e-6);
+}
+const coordKey = s => `${(+s.lat).toFixed(6)},${(+s.lng).toFixed(6)}`;
+
+function numIcon(n, cls = "") {
+  return L.divIcon({ className:"", html:`<div class="pin ${cls}">${n}</div>`, iconSize:[26,26], iconAnchor:[13,13], popupAnchor:[0,-12] });
+}
+function tiles(map) { L.tileLayer(OSM_TILES, { maxZoom:19, attribution:"© OpenStreetMap" }).addTo(map); }
+
+function sha256(text) {
+  return crypto.subtle.digest("SHA-256", new TextEncoder().encode(text))
+    .then(b => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""));
 }
 
-function selectShift(shiftId, btn){
-  currentShift = shiftId;
-  document.querySelectorAll('.time-pick').forEach(e => e.classList.remove('active'));
-  btn.classList.add('active');
-  renderScheduleData();
+/* Parse "lat, lng" or Google Maps long URL (…@lat,lng / q=lat,lng / !3dlat!4dlng) */
+function parseLatLngInput(str) {
+  str = String(str || "").trim();
+  const pats = [/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/, /@(-?\d+\.\d+),(-?\d+\.\d+)/,
+                /[?&](?:q|query|ll|destination)=(-?\d+\.\d+)(?:,|%2C)\s*(-?\d+\.\d+)/i,
+                /^(-?\d+\.\d+)\s*[, ]\s*(-?\d+\.\d+)$/];
+  for (const p of pats) { const m = p.exec(str); if (m && validLatLng(m[1], m[2])) return { lat:+m[1], lng:+m[2] }; }
+  return null;
 }
 
-function switchView(type){
-  const t = document.getElementById('tableViewContainer'), m = document.getElementById('mapViewContainer');
-  const bt = document.getElementById('btnTableView'), bm = document.getElementById('btnMapView');
-  if(type === 'table'){ t.classList.remove('hidden'); m.classList.add('hidden'); bt.classList.add('active'); bm.classList.remove('active'); }
-  else { t.classList.add('hidden'); m.classList.remove('hidden'); bt.classList.remove('active'); bm.classList.add('active'); }
-}
+/* =====================================================================
+   STORAGE  (swap these 4 functions for google.script.run to share data)
+   ===================================================================== */
+const Store = {
+  get(k, fb) { try { const v = localStorage.getItem(k); return v == null ? fb : JSON.parse(v); } catch (e) { return fb; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { toast("บันทึกไม่สำเร็จ (storage เต็ม?)", "err"); return false; } },
+  getStr(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } },
+  setStr(k, v) { try { localStorage.setItem(k, v); } catch (e) { toast("บันทึกไม่สำเร็จ", "err"); } }
+};
 
-/* ================= RENDER SCHEDULE ================= */
-function getLineInfo(id){
-  for(const z of zonesConfig){ const l = z.lines.find(x => x.id === id); if(l) return l; }
-  return { name: "Unknown", defaultCoord:"-" };
-}
+/* =====================================================================
+   DATA
+   ===================================================================== */
+const defaultZonesConfig = [
+ {
+  "id": "z1",
+  "name": "Zone 1",
+  "label": "ชลบุรี / บางแสน",
+  "lines": [
+   {
+    "id": "l1",
+    "name": "บางแสน",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l18",
+    "name": "รถตู้ชลบุรี",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l21",
+    "name": "ออฟฟิตชลบุรี",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   }
+  ]
+ },
+ {
+  "id": "z2",
+  "name": "Zone 2",
+  "label": "ศรีราชา / แหลมฉบัง",
+  "lines": [
+   {
+    "id": "l2",
+    "name": "ศรีราชา",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l13",
+    "name": "เคหะ1 หน้ารร.",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l15",
+    "name": "ตู้อ่าว-ซากกยายจีน",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l17",
+    "name": "รถตู้เก้ากิโล",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   }
+  ]
+ },
+ {
+  "id": "z3",
+  "name": "Zone 3",
+  "label": "หนองขาม / บึง",
+  "lines": [
+   {
+    "id": "l7",
+    "name": "เครือ",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l8",
+    "name": "อนามัยหนองขาม",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l9",
+    "name": "บึงทอง",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l28",
+    "name": "เสริมบึงทอง",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l10",
+    "name": "อุดมกิต",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l29",
+    "name": "อุดมกิต เสริม",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l16",
+    "name": "รถตู้หนองขาม",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   }
+  ]
+ },
+ {
+  "id": "z4",
+  "name": "Zone 4",
+  "label": "พัทยา / โรงโป๊ะ",
+  "lines": [
+   {
+    "id": "l4",
+    "name": "พัทยา",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l5",
+    "name": "โรงโป๊ะ",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l6",
+    "name": "ทุ่งกราด",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l26",
+    "name": "บ้านนา",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l11",
+    "name": "ชอย 10 ปะชานาถ",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l12",
+    "name": "ชอย 10(เสริมต้นยาง)",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l27",
+    "name": "ชอย 10หนองเป็ดหาย",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   },
+   {
+    "id": "l19",
+    "name": "รถตู้ก้นอ่าว",
+    "defaultCoord": "ติดต่อผู้ประสานงาน"
+   }
+  ]
+ }
+];
+const RAW_ROUTES = {
+ "l1": "แยกบางแสน|05:50||||13.311948|100.947411,ตลาดหนองมน (สะพานลอย)|05:53||||13.291460|100.949898,ศาลารอรถแยกวัดตาลล้อม|05:55||||13.306032|100.957674,แยกวัดท้ายดอน|05:58||||13.303850|100.938893,แยกเหมือง|06:00|18:00|||13.285318|100.945625,หน้าสถานีตำรวจทางหลวง|06:04|18:04|||13.302118|100.960805,ศาลาคลองน้ำเหม็น|06:08|18:08|||13.289628|100.926052,หน้า CPF|06:01|18:01|||13.302473|100.944205,ซอยหินเพิง|06:12|18:12|||13.287839|100.926372,หน้าโลตัส|06:13|18:13|||13.287700|100.947530,สะพานลอยบางพระ|06:14|18:14|||13.306489|100.939287,แยกตัดทางรถไฟ (คอเขาบางพระ)|06:16|18:16|||13.312678|100.944204,ซอยเรือนทะเล|06:17|18:17|||13.297412|100.952049,หน้าหมู่บ้านไทยออยล์|06:18|18:18|||13.297651|100.939648",
+ "l2": "ซอยวัดเขาแตงอ่อน|06:02|18:02|||13.171076|100.945391,ซอยวัดวังหิน|06:22|18:22|||13.161580|100.923316,ซอยจ่าบัน (ตรงข้าม บ. SECOM)|06:23|18:23|||13.158370|100.915367,สะพานลอยศรีราชา|06:25|18:25|||13.157745|100.917705,ห้างตึกคอมศรีราชา|06:27|18:27|||13.148005|100.919166,หน้าทางเข้า ร.พ. สมเด็จฯ|06:29|18:29|||13.166645|100.942197,ซอย ส.บุญสร้าง|06:03|18:03|||13.184199|100.927416,หน้าหมู่บ้านศรีราชา|06:31|18:31|||13.162458|100.947401",
+ "l13": "หอหลังคาแดง|06:25|18:25|||13.108702|100.922363,เซเว่นหน้าตึก21|06:26|18:26|||13.121056|100.932181,ป้อมตำรวจเคหะ|06:27|18:27|||13.126251|100.941216,หน้าโอเค รีสอร์ท|06:29|18:29|||13.122539|100.916379,หน้าคอนโด|06:30|18:30|||13.117598|100.930463",
+ "l15": "หน้า รร. ซากยายจีน|06:02|18:02|||13.110566|100.942879,ซอยหน้าหมู่บ้านแฟมิลี่ปาร์ค|06:22|18:22|||13.110011|100.919388,เซเว่นแยกเขาน้ำซับ|06:23|18:23|||13.101400|100.921676,ม.เกษตรประตู3|06:24|18:24|||13.092591|100.924453",
+ "l17": "หมู่บ้านธนาวิล|06:17|18:17|||13.158568|100.940954,หมู่บ้านกรีนวิว 2|06:19|18:19|||13.157079|100.921499,หน้าวัดประทานพร|06:21|18:21|||13.132797|100.928825,เซเว่นเขาน้ำซับ|06:23|18:23|||13.138724|100.924177,หมู่บ้านเปรมสุข2|06:02|18:02|||13.134708|100.924505,หอจุ๊บแจง|06:21|18:21|||13.144219|100.922340",
+ "l7": "หน้าโรงไฟฟ้าไร่ 1|06:13|18:13|||13.076274|100.990017,หน้าร้านเครื่องใช้ไฟฟ้า(ตรงข้ามตลาดไร่1)|06:15|18:15|||13.075615|100.979773,หน้าตลาดพระพรหม|06:17|18:17|||13.077392|100.984905,หน้าธนาคารกรุงเทพ|06:19|18:19|||13.097615|100.997543,หน้าไลอ้อน|06:02|18:02|||13.076057|101.003587",
+ "l8": "ศาลารอรถ ข้างเต้นท์รถ JK ออโต้|06:01|18:01|||13.093840|100.979461,ตรงข้ามร้านอาหารครัวริมบึง|06:01|18:01|||13.096317|101.001192,ร้านทำป้าย จิตรกรโฆษณา|06:11|18:11|||13.099293|100.975743,โรงเรียนเสริมสวยคุณอ้อม|06:12|18:12|||13.095983|100.981990,หอพัก SPK ตรงข้ามตลาดนัด|06:14|18:14|||13.085187|100.985459,ตรงข้ามหมู่บ้านโกลเด้นเพลส|06:15|18:15|||13.099166|100.984094,หน้าเซเว่น พานทองแท้ 4|06:16|18:16|||13.099354|101.012843,ศาลารอรถ หน้าหมู่บ้านพานทองแท้ 1|06:17|18:17|||13.080820|101.011710,ร้านขายเครื่องใช้ไฟฟ้า พานทองแท้2|06:18|18:18|||13.075990|101.006142,หน้าอู่เอกเจริญยนต์|06:19|18:19|||13.092209|100.986829,ร้านไก่ย่างวิเชียรบุรี|06:02|18:02|||13.082590|100.978867,หน้าอู่แจ็คเซอร์วิส|06:21|18:21|||13.073102|100.998862,ศารลารอรถหน้าอู่รุ่งวัฒนา|06:22|18:22|||13.086954|100.990623,หน้าสนามฟุตบอลหญ้าเทียม|06:23|18:23|||13.095327|100.996931,ร้านอะไหล่มอเตอร์ไซข้างเต้นท์รถแหลมทอง|06:24|18:24|||13.076343|101.012863,ศาลารอรถหน้าร้านวัสดุก่อสร้าง|06:25|18:25|||13.083601|100.997019,หน้าหมู่บ้าน เบต้าฮิล|06:26|18:26|||13.072763|100.980448,หน้าอู่ซ่อมรถบรรหาญ ซอยขาหมูดงตาล|06:27|18:27|||13.100761|100.978860,หน้าคลีนิกทันตกรรม ยิ้มกว้าง|06:28|18:28|||13.085157|100.992229",
+ "l9": "หน้าร้านของเล่นเด็กเฟื่องฟ้า|06:00|18:00|||13.079921|100.981685,หน้าตลาดวรกิจ|06:02|18:02|||13.068425|100.976579,หน้าร้านผ้าม่าน|06:04|18:04|||13.082102|100.994105,ปั้มน้ำมัน ปตท.บึงทอง|06:06|18:06|||13.091352|100.976625,ปั้มเชลล์บึงทอง|06:08|18:08|||13.084840|100.979402",
+ "l28": "หน้า ม.แหลมบังกรีนวิว|06:01|18:01|||13.070038|100.991879,เซเว่นตลาดเมืองทอง|06:11|18:11|||13.089592|101.005276,หน้า ม.จิตอารีย์|06:12|18:12|||13.080675|100.975199,จุกกะเฌอค้าไม้|06:14|18:14|||13.077917|101.000402,ซอยสิบแสน|06:16|18:16|||13.073905|100.985739,เซเว่นจุกกะเฌอ|06:18|18:18|||13.077224|101.001210,หน้าหมู่บ้านธนาวัลย์|06:19|18:19|||13.092685|100.987789,ปั้ม ปตท.หลังสนามบิน|06:02|18:02|||13.101291|100.990844",
+ "l10": "หน้าเซเว่นแยกหนองคล้าใหม่|06:15|18:15|||13.100463|100.997664,หน้าตลาดอุดมกิจ|06:02|18:02|||13.102387|101.009906",
+ "l29": "หน้าก๋วยเตี๋ยวไก่มะระ|06:02|18:02|||13.085435|100.976271,หน้าร้านผ้าม่าน|06:21|18:21|||13.099719|100.974767,ตรงข้ามเซเว่น ม.เทพธาริน|06:23|18:23|||13.081076|100.977278,หน้าTop|06:24|18:24|||13.089211|100.979791,หน้าตลาดสดรัตนากร|06:25|18:25|||13.091348|101.012796,หน้าทางเข้าหมู่บ้านสหชัย|06:26|18:26|||13.102033|100.993197,หอใหม่หน้าตลาดนัดทางรถไฟ|06:27|18:27|||13.089581|101.008175,หน้าหอพักก่อนถึงสี่แยกเทคโน|06:28|18:28|||13.074631|100.999841,หน้าร้านหมูกระทะ|06:02|18:03|||13.081517|100.995168",
+ "l16": "หอพักดีพร้อม|06:08|18:08|||13.083850|100.997300,7-11 ซอยนายขาว|06:09|18:09|||13.070404|101.007102,จุดสามแยกบายพาส|06:01|18:01|||13.086571|100.990090,หอพักอยู่สบาย|06:11|18:11|||13.096889|100.985425,ตำนานชลบ่อยาง|06:12|18:12|||13.106171|100.989400,ตึกไทย-ญี่ปุ่น|06:13|18:13|||13.079325|100.997514,หอพักต่อศักดิ์|06:14|18:14|||13.090968|100.989755,ตึกฟ้าขาว|06:15|18:15|||13.090698|100.996608",
+ "l4": "ศาลารอรถพัทยาใต้|06:05|18:05|||12.935653|100.864545,กรมทางหลวงพัทยาใต้|06:06|18:06|||12.936625|100.874748,ซอยเขาน้อย|06:07|18:07|||12.907146|100.863392,ศาลาก่อนถึงไฟแดงพัทยากลาง|06:08|18:08|||12.938387|100.880266,ปั๊ม บางจาก พัทยากลาง|06:01|18:01|||12.921232|100.895341,ซอย สนามกลอฟ์|06:12|18:12|||12.939344|100.882959,โรงเรียนพระมหาไถ่|06:14|18:14|||12.932918|100.873867,ปั๊ม ปตท.|06:15|18:15|||12.917647|100.886020,ไฟแดงพัทยาเหนือ|06:16|18:16|||12.940238|100.870725,หน้าวัดหนองใหญ่|06:18|18:18|||12.911602|100.898802,หน้าเมืองจำลอง|06:02|18:02|||12.906218|100.871396,หน้าสุเหร่าแขก|06:21|18:21|||12.929212|100.880852,ปั๊ม บางจาก นาเกลือ|06:24|18:24|||12.920680|100.862706,หน้าธนาคารไทยพานิชย์ นาเกลือ|06:25|18:25|||12.904447|100.886789,สะพานลอยหน้าโรงเรียนบางละมุง|06:28|18:28|||12.923690|100.880565,ไฟแดงโรงไม้ขีด|06:29|18:29|||12.918540|100.885665,หน้าศูนย์โตโยต้า|06:03|18:03|||12.943873|100.871874,ซอยโรงเลื่อย|06:32|18:32|||12.905550|100.897509",
+ "l5": "สะพานลอยจิตพาวัน|06:18|18:33|||13.017447|100.944405,แยกกระทิงลาย|06:19|18:34|||13.003693|100.911863,หน้า บ.โปรตอน เทรนดิ้ง|06:02|18:18|||13.016300|100.923985,สะพานลอยบ้านโรงโป๊ะ|06:21|18:02|||13.009175|100.936459,หน้าวัดประชุมคงคา|06:21|18:21|||13.010245|100.922115",
+ "l6": "โรงเรียนศรีสุวิทย์|06:22|18:22|||13.018942|100.907428,หน้าสถานสงเคราะห์คนชรา|06:23|18:23|||13.041707|100.934469,ศาลาวัดบางละมุง|06:25|18:25|||13.010101|100.928898,หอลัดดา|06:26|18:26|||13.037465|100.914290,หน้าร้านพนัชกรแม็กยางทุ่งกราด|06:26|18:26|||13.029278|100.943657,ร้านค้าเปตอง shop|06:27|18:27|||13.028360|100.913286",
+ "l26": "สะพานลอยโรงเรียนทุ่งกราด|06:03|18:03|||13.013157|100.933939,ใต้สะพาน|06:31|18:31|||13.004771|100.929775,โรงงานกระจก|06:32|18:32|||13.004813|100.924074,ปากซอยทุ่งรวงทอง|06:33|18:33|||13.019248|100.938887,ศาลาต้นมะม่วง|06:34|18:34|||13.033336|100.938136,หน้าโรงเรียนวัดบ้านนา|06:35|18:35|||13.004527|100.911599,หน้าปั้มคาลเท็กซ์|06:36|18:36|||13.042671|100.935558,สะพานลอยฮาร์เบอร์มอร์|06:37|18:37|||13.028931|100.939710",
+ "l11": "ศาลารอรถป้อมหนองขาม|06:12|18:12|||13.041828|100.945145,หน้าร้าน ว.มินิมาร์ท|06:13|18:13|||13.052881|100.950586,หมู่บ้านเฟื่องฟ้า/หอพักสีฟ้า|06:14|18:14|||13.050296|100.953096,หน้าวัดต้นมะม่วง|06:15|18:15|||13.049698|100.930677,หอพัก400ห้อง|06:17|18:17|||13.039256|100.958816,เนินเขาดิน|06:02|18:02|||13.068986|100.960025,หอพักเขาดิน|06:21|18:21|||13.056833|100.961274,วัดปชานาถ|06:23|18:23|||13.038088|100.940390,หน้าร้านป้าซิ่ว|06:24|18:24|||13.050855|100.939765,แยกดาวเทียม|06:25|18:28|||13.035292|100.930753,สะพานลอยมิชลิน|06:31|18:31|||13.034614|100.966041,ซอย เพ็ญรุ่ง|06:32|18:32|||13.038918|100.944443,สะพานลอยสี่มุมเมือง|06:33|18:33|||13.059343|100.946986,ซอย หนองเป็ดหาย|06:34|18:34|||13.039571|100.958608",
+ "l12": "ชอย 10 ต้นยาง|06:02|18:02|||13.044180|100.932831,ซอยเซียสวัสดิ์ (หน้าคุณตา อพาร์ทเม้นท์)|06:21|18:21|||13.058995|100.959252,หน้าบริษัท STC (ติดโกดังค้าส่งชลบุรีแสนเจริญ)|06:22|18:22|||13.069148|100.947228,แยก 7-11|06:23|18:23|||13.065905|100.953363,ถนนหนองแร่|06:25|18:25|||13.046132|100.936794",
+ "l27": "ซอยหนองเป็ดหาย|06:27|18:27|||13.036701|100.947751,สถานีตำรวจแหลมฉบัง|06:28|18:28|||13.051873|100.933628",
+ "l19": "22301 หน้าวัดใหม่|06:20|18:20|||12.998242|100.931048,22302 ซอย 12|06:22|18:22|||12.987496|100.935237,22303 ซอย 8|06:24|18:24|||12.999129|100.899750,22304 ตึกขาว(ซอย6)|06:25|18:25|||13.016220|100.912412,22305 แยกโต๊ะสนุ๊ก|06:27|18:27|||13.001361|100.925230,22306 แยกวงเดือน|06:29|18:29|||12.988914|100.925945,22307 ตลาดบ้านทุ่ง|06:30|18:30|||13.012654|100.910725",
+ "l18": "หน้าเฉลิมไทย|05:05|17:05|||13.363417|100.984893,เลยสี่แยกบ้านสวน (หน้าศูนย์ภาษา NAVA)|05:52|17:52|||13.370926|100.965093,หน้าขนส่ง|05:53|17:53|||13.356542|100.965637,หน้าโรงพยาบาล|05:54|17:54|||13.365818|100.992267,แยก โรงเรียนชลชาย|05:55|17:55|||13.345032|101.002468,ตึกน้ำ|05:56|17:56|||13.354548|101.003879,หน้าโลตัส|05:57|17:57|||13.342781|100.966528,สะพานลอยห้วยกะปิ|05:58|17:58|||13.360752|100.977740,หน้าโรงเรียนห้วยกะปิ|05:59|17:59|||13.365853|100.982151,แยกคีรี|06:00|18:00|||13.344891|100.964847,หน้าทางเข้าโรงงานตุ๊กตา|06:01|18:01|||13.370833|100.973082,แยกอ่างศิลา|06:02|18:02|||13.374650|100.983895,หน้าทางเข้าวิทยาลัยสารพัดช่าง|06:04|18:04|||13.359473|100.989965,แยกบางแสน||18:05|||13.365816|100.987820,ตลาดหนองมน (สะพานลอย)||18:06|||13.364613|100.971005,ศาลารอรถแยกวัดตาลล้อม||18:07|||13.353543|100.970952,แยกวัดท้ายดอน||18:08|||13.342915|100.982263",
+ "l21": "เฉลิมไทยชลบุรี (หน้าวัดจีน)|06:02|17:45|||13.379031|100.997835,หน้าวิทยาลัยอาชีวฯ ชลบุรี|06:22||||13.367818|100.975438,หน้าธนาคารธนชาติ (ลุมพินีคอนโดชลบุรี)|06:23||||13.367643|100.983880,สะพานลอย สี่แยกโรงเรียนชลชาย|06:25||||13.341949|101.002560,สะพานลอยหน้าโลตัสชลบุรี|06:26||||13.349269|100.979090,สะพานลอยหน้าเซ็นทรัล-ชลบุรี|06:27||||13.362448|100.975633,แยกคีรี|06:29||||13.369844|100.987416,สะพานลอยหน้าบิ๊กซีอ่างศิลา (โฮมโปร)|06:03||||13.349977|100.987656,หน้าแฮปปี้เวิลด์|06:32||||13.343914|100.978702,หน้าหมู่บ้าน ณิชาดา|06:35||||13.348647|101.003238,ศาลารอรถ เยื้องตรงข้ามร้าน ส:วรกิจ|06:37||||13.374270|100.979280,เวลารับพนักงานกลับ||17:45|||13.362604|100.974853"
+};
 
-function updateAnnouncementBanner() {
-    const lineAnnounce = announceData[currentLine];
-    const globalAnnounce = announceData.global;
-    
-    let displayHtml = "";
-    if(lineAnnounce && lineAnnounce.trim() !== "") {
-        displayHtml = `<span class="chip amber" style="margin-right:8px;">${getLineInfo(currentLine).name}</span> ${lineAnnounce}`;
-    } else if (globalAnnounce && globalAnnounce.trim() !== "") {
-        displayHtml = `<span class="chip blue" style="margin-right:8px;">ทั่วไป</span> ${globalAnnounce}`;
-    } else {
-        displayHtml = "ยังไม่มีประกาศใหม่";
-    }
-    document.getElementById('announcementText').innerHTML = displayHtml;
-}
+let zonesConfig = Store.get(LS.zones, null) || structuredClone(defaultZonesConfig);
+let contactsData = Store.get(LS.contacts, null);
+if (!contactsData) { contactsData = {}; zonesConfig.forEach(z => z.lines.forEach(l => contactsData[l.id] = l.defaultCoord)); }
+let scheduleData = Store.get(LS.data, null) || buildSeedData();
+let announceData = Store.get(LS.ann, null) || { global:"สวมหน้ากากอนามัยและรัดเข็มขัดนิรภัยทุกครั้งที่ใช้บริการ" };
 
-function renderScheduleData(){
-  const line = getLineInfo(currentLine);
-  const shiftLabel = SHIFT_LABELS[currentShift];
-  const coordData = contactsData[currentLine] || "No Data";
-  
-  document.getElementById('adminCurrentViewLabel').innerText = ` ${line.name} · ${shiftLabel}`;
-  document.getElementById('routeSummary').innerText = `/ ${line.name} · ${shiftLabel}`;
+zonesConfig.forEach(z => z.lines.forEach(l => {
+  if (!scheduleData[l.id]) scheduleData[l.id] = emptyShifts();
+  SHIFTS.forEach(s => { if (!Array.isArray(scheduleData[l.id][s.id])) scheduleData[l.id][s.id] = []; });
+}));
+Object.values(scheduleData).forEach(sh => Object.values(sh).forEach(sortStops));
+saveAll();
 
-  let data = scheduleData[currentLine][currentShift] || [];
-  
-  // SORT DATA BY TIME CHRONOLOGICALLY
-  data.sort((a, b) => {
-      if(!a.time) return 1;
-      if(!b.time) return -1;
-      return a.time.localeCompare(b.time);
-  });
-  
-  // Re-number rounds sequentially
-  data.forEach((d, i) => d.round = i + 1);
-  saveDataLocally(); // save sorted order
-
-  const tbody = document.getElementById('tableBody');
-  const tl = document.getElementById('mapBody');
-  tbody.innerHTML = ''; tl.innerHTML = '';
-
-  /* Admin KPIs */
-  document.getElementById('kpiRounds').innerText = data.length;
-  document.getElementById('kpiFirst').innerText = data.length ? data[0].time : '–';
-  document.getElementById('kpiFirstFoot').innerText = data.length ? data[0].location : 'ไม่มีข้อมูล';
-  document.getElementById('kpiLast').innerText = data.length ? data[data.length-1].time : '–';
-  document.getElementById('kpiLastFoot').innerText = data.length ? data[data.length-1].location : 'ไม่มีข้อมูล';
-  document.getElementById('kpiCoord').innerText = coordData.split('(')[0].trim();
-  document.getElementById('kpiCoordFoot').innerText = (coordData.match(/\(([^)]+)\)/) || [,'–'])[1];
-
-  if(data.length === 0){
-    tbody.innerHTML = `<tr><td colspan="4" class="empty"><span class="big">🗓️</span>ยังไม่มีรอบรถในช่วงเวลานี้</td></tr>`;
-    tl.innerHTML = `<div class="empty"><span class="big">🗓️</span>ยังไม่มีรอบรถในช่วงเวลานี้</div>`;
-  } else {
-    data.forEach((item,index) => {
-      const latVal = (item.lat && item.lat !== "0") ? item.lat : "13.2946";
-      const lngVal = (item.lng && item.lng !== "0") ? item.lng : "100.9452";
-      const mapUrl = `https://maps.google.com/?q=${latVal},${lngVal}`;
-      const imgHtml = item.img ? `<a href="${item.img}" target="_blank" class="img-link">🖼️ รูปสถานที่</a>` : '';
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><span class="round-badge">${item.round}</span></td>
-        <td class="time-cell">${item.time}</td>
-        <td><a href="${mapUrl}" target="_blank" class="map-link">📍 ${item.location}</a> ${imgHtml}</td>
-        <td class="admin-col hidden">
-          <button class="action-btn edit-btn" onclick="openModal('edit', ${index})">Edit</button>
-          <button class="action-btn del-btn" onclick="deleteRound(${index})">Del</button>
-        </td>`;
-      tbody.appendChild(tr);
-
-      const row = document.createElement('div');
-      row.className = 'tl-item';
-      row.innerHTML = `
-        <div class="tl-rail"><div class="tl-line"></div><div class="tl-dot"></div></div>
-        <div class="tl-body">
-          <span class="tl-time">${item.time}</span>
-          <span class="tl-round">R${item.round}</span>
-          <span class="tl-loc"><a href="${mapUrl}" target="_blank" class="map-link">📍 ${item.location}</a> ${imgHtml}</span>
-        </div>`;
-      tl.appendChild(row);
-    });
-  }
-  
-  updateAnnouncementBanner();
-  updateAdminVisibility();
-}
-
-/* ================= NEAREST POINT FINDER ================= */
-let mainNearestMap = null;
-let nearestMarkersLayer = null;
-let userLocationMarker = null;
-
-function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; 
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-}
-
-function findNearestStops() {
-    const btn = document.getElementById('findNearestBtn');
-    btn.innerText = "กำลังค้นหาตำแหน่งของคุณ... (Locating...)";
-    
-    if (!navigator.geolocation) {
-        alert("เบราว์เซอร์ของคุณไม่รองรับระบบ GPS (Geolocation not supported).");
-        btn.innerText = "📍 ดึงตำแหน่งปัจจุบัน (Get Current Location)";
-        return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-        (position) => {
-            btn.innerText = "📍 ดึงตำแหน่งปัจจุบัน (Get Current Location)";
-            processNearestStops(position.coords.latitude, position.coords.longitude);
-        },
-        (error) => {
-            btn.innerText = "📍 ดึงตำแหน่งปัจจุบัน (Get Current Location)";
-            alert("ไม่สามารถระบุตำแหน่งได้ กรุณาเปิดการใช้งาน GPS (Cannot get location. Please enable GPS/Location Services).");
-        },
-        { enableHighAccuracy: true }
-    );
-}
-
-function refreshNearestStops() {
-    if (userLocationMarker) {
-        const pos = userLocationMarker.getLatLng();
-        processNearestStops(pos.lat, pos.lng);
-    }
-}
-
-function processNearestStops(userLat, userLng) {
-    let allStops = [];
-    for(let lineId in scheduleData) {
-        for(let shiftId in scheduleData[lineId]) {
-            scheduleData[lineId][shiftId].forEach(stop => {
-                const lat = parseFloat(stop.lat);
-                const lng = parseFloat(stop.lng);
-                if(!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
-                    const dist = getDistance(userLat, userLng, lat, lng);
-                    allStops.push({
-                        lineId, shiftId,
-                        location: stop.location,
-                        time: stop.time,
-                        lat: lat, lng: lng,
-                        distance: dist
-                    });
-                }
-            });
-        }
-    }
-
-    allStops.sort((a, b) => a.distance - b.distance);
-    const topStops = allStops.slice(0, 5);
-
-    document.getElementById('nearestMapWrapper').classList.remove('hidden');
-
-    if (!mainNearestMap) {
-        mainNearestMap = L.map('nearestMapContainer').setView([userLat, userLng], 14);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(mainNearestMap);
-        nearestMarkersLayer = L.layerGroup().addTo(mainNearestMap);
-    } else {
-        mainNearestMap.setView([userLat, userLng], 14);
-        nearestMarkersLayer.clearLayers();
-    }
-    
-    setTimeout(() => { mainNearestMap.invalidateSize(); }, 200);
-
-    userLocationMarker = L.marker([userLat, userLng], {
-        draggable: true,
-        icon: L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-            iconSize: [25, 41], iconAnchor: [12, 41]
-        })
-    }).bindPopup("<b>📍 ตำแหน่งของคุณ (You)</b><br>ลากหมุดนี้เพื่อเปลี่ยนตำแหน่ง").addTo(nearestMarkersLayer);
-
-    const resultsDiv = document.getElementById('nearestResults');
-    resultsDiv.innerHTML = '<h3 style="font-size:18px; font-weight:700; color:var(--blue-dark); margin-bottom:16px; padding:10px; background:var(--blue-wash); border-radius:8px; text-align:center; border:1px solid var(--blue-border);">📍 จุดขึ้นรถที่ใกล้ที่สุด 5 อันดับ (Top 5 Nearest Stops)</h3>';
-
-    if(topStops.length === 0) {
-        resultsDiv.innerHTML += '<p style="color:var(--text-muted); font-size:13px; text-align:center;">ไม่พบข้อมูลพิกัดในระบบ (No GPS data available yet).</p>';
-        return;
-    }
-
-    topStops.forEach((stop, index) => {
-        const lineInfo = getLineInfo(stop.lineId);
-        const shiftName = SHIFT_LABELS[stop.shiftId];
-        const distKm = stop.distance.toFixed(2);
-        
-        L.marker([stop.lat, stop.lng], {
-            icon: L.icon({
-                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
-                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                iconSize: [25, 41], iconAnchor: [12, 41]
-            })
-        }).bindPopup(`<b>${stop.location}</b><br>${lineInfo.name} (${stop.time})`).addTo(nearestMarkersLayer);
-
-        resultsDiv.innerHTML += `
-            <div class="nearest-card">
-                <div class="nc-head">
-                    <span class="nc-title">${index+1}. ${stop.location}</span>
-                    <span class="nc-dist">${distKm} km</span>
-                </div>
-                <div class="nc-details">
-                    <span>🚌 ${lineInfo.name}</span>
-                    <span>🕒 ${shiftName} (${stop.time})</span>
-                </div>
-                <div class="nc-foot">
-                    <button class="btn-small" onclick="jumpToSchedule('${stop.lineId}', '${stop.shiftId}')">ดูตารางรถ (View Schedule)</button>
-                </div>
-            </div>
-        `;
-    });
-}
-
-function jumpToSchedule(lineId, shiftId) {
-    let zoneId = "z1";
-    for(const z of zonesConfig) {
-        if(z.lines.find(l => l.id === lineId)) { zoneId = z.id; break; }
-    }
-    
-    const scheduleNavBtn = document.querySelector('.nav-btn[data-tab="schedule"]');
-    switchMainTab('schedule', scheduleNavBtn);
-    
-    const zoneBtnArr = Array.from(document.querySelectorAll('.zone-pick'));
-    const targetZoneBtn = zoneBtnArr.find(btn => btn.innerText.includes(zonesConfig.find(z=>z.id===zoneId).name));
-    if(targetZoneBtn) changeZone(zoneId, targetZoneBtn);
-    
-    const lineBtnArr = Array.from(document.querySelectorAll('.line-pick'));
-    const targetLineBtn = lineBtnArr.find(btn => btn.innerText.includes(getLineInfo(lineId).name));
-    if(targetLineBtn) selectLine(lineId, targetLineBtn);
-    
-    const shiftBtnArr = Array.from(document.querySelectorAll('.time-pick'));
-    const shiftIndex = ["t0730", "t1930", "t1700", "t0500"].indexOf(shiftId);
-    if(shiftIndex !== -1 && shiftBtnArr[shiftIndex]) selectShift(shiftId, shiftBtnArr[shiftIndex]);
-}
-
-
-/* ================= ADMIN ================= */
-function toggleAdmin(){
-  const btn = document.getElementById('adminBtn');
-  if(isAdmin){
-    isAdmin = false; btn.innerHTML = "🔑 Admin Login"; btn.classList.remove('logged-in');
-  } else {
-    const pwd = prompt("Enter Admin Password:");
-    if(pwd === "212224236"){ isAdmin = true; btn.innerHTML = "✓ Log Out Admin"; btn.classList.add('logged-in'); }
-    else if(pwd !== null) alert("Incorrect Password.");
-  }
-  updateAdminVisibility();
-}
-
-function updateAdminVisibility(){
-  document.getElementById('adminToolbar').classList.toggle('hidden', !isAdmin);
-  document.getElementById('kpiDashboard').classList.toggle('hidden', !isAdmin);
-  document.querySelectorAll('.admin-col').forEach(el => el.classList.toggle('hidden', !isAdmin));
-  
-  if(!isAdmin && document.getElementById('adminAnnounceTab').classList.contains('hidden') === false) {
-      switchMainTab('nearest', document.querySelector('.nav-btn[data-tab="nearest"]'));
-  }
-}
-
-function addZone() {
-    const zoneName = prompt("Enter new Zone Name (e.g. Zone 5):");
-    if(!zoneName) return;
-    const label = prompt("Enter Zone Area Label (e.g. ระยอง):");
-    const newId = "z" + (Date.now());
-    zonesConfig.push({ id: newId, name: zoneName, label: label||"", lines: [] });
-    localStorage.setItem('cthZones_v2', JSON.stringify(zonesConfig));
-    initUI();
-}
-
-function addLine() {
-    const lineName = prompt("Enter new Line Name:");
-    if(!lineName) return;
-    const newId = "l" + (Date.now()); 
-    const zone = zonesConfig.find(z => z.id === currentZone);
-    zone.lines.push({ id: newId, name: lineName, defaultCoord: "ติดต่อผู้ประสานงาน" });
-    localStorage.setItem('cthZones_v2', JSON.stringify(zonesConfig));
-    
-    scheduleData[newId] = { t0730:[], t1930:[], t1700:[], t0500:[] };
-    saveDataLocally();
-    
-    contactsData[newId] = "ติดต่อผู้ประสานงาน";
-    localStorage.setItem('cthContacts_v2', JSON.stringify(contactsData));
-
-    initUI();
-    changeZone(currentZone, null); 
-}
-
-/* ================= ADMIN ANNOUNCEMENT DASHBOARD ================= */
-function renderAnnounceEditor() {
-    const list = document.getElementById('announceLineList');
-    list.innerHTML = '';
-    
-    const globalBtn = document.createElement('button');
-    globalBtn.className = 'pick line-pick' + (currentEditAnnounce === 'global' ? ' active' : '');
-    globalBtn.style.width = '100%'; globalBtn.style.textAlign = 'left'; globalBtn.style.marginBottom = '10px';
-    globalBtn.innerText = "📢 ประกาศรวมทุกสาย (Global)";
-    globalBtn.onclick = () => loadAnnounceIntoEditor('global', globalBtn, "ประกาศรวมทุกสาย (Global)");
-    list.appendChild(globalBtn);
-
-    zonesConfig.forEach(z => {
-        const h = document.createElement('div');
-        h.style.fontWeight = 'bold'; h.style.fontSize = '11px'; h.style.marginTop = '10px'; h.style.marginBottom = '5px'; h.style.color = 'var(--text-secondary)';
-        h.innerText = z.name;
-        list.appendChild(h);
-        z.lines.forEach(l => {
-            const btn = document.createElement('button');
-            btn.className = 'pick line-pick' + (currentEditAnnounce === l.id ? ' active' : '');
-            btn.style.width = '100%'; btn.style.textAlign = 'left'; btn.style.marginBottom = '4px';
-            btn.innerText = "🚌 " + l.name;
-            btn.onclick = () => loadAnnounceIntoEditor(l.id, btn, l.name);
-            list.appendChild(btn);
-        });
-    });
-    
-    loadAnnounceIntoEditor(currentEditAnnounce, null, currentEditAnnounce === 'global' ? "ประกาศรวมทุกสาย (Global)" : getLineInfo(currentEditAnnounce).name);
-}
-
-function loadAnnounceIntoEditor(id, btnObj, title) {
-    currentEditAnnounce = id;
-    if(btnObj) {
-        document.querySelectorAll('#announceLineList .pick').forEach(e=>e.classList.remove('active'));
-        btnObj.classList.add('active');
-    }
-    document.getElementById('announceEditorTitle').innerText = title;
-    document.getElementById('announceEditorText').value = announceData[id] || "";
-}
-
-function saveAnnouncement() {
-    const text = document.getElementById('announceEditorText').value.trim();
-    announceData[currentEditAnnounce] = text;
-    localStorage.setItem('cthAnnouncements_v2', JSON.stringify(announceData));
-    
-    updateAnnouncementBanner(); // Refresh the live banner at the bottom immediately
-    alert("บันทึกประกาศสำเร็จ (Saved!)");
-}
-
-/* ================= UTILS & MODALS ================= */
-
-function editContact(lineId){
-  const current = contactsData[lineId];
-  const newName = prompt("Edit Coordinator (Name & Phone):", current);
-  if(newName !== null && newName.trim() !== "") {
-    contactsData[lineId] = newName.trim();
-    localStorage.setItem('cthContacts_v2', JSON.stringify(contactsData));
-    document.getElementById('contact_lbl_' + lineId).innerText = "👤 " + newName.trim();
-    if(currentLine === lineId) renderScheduleData();
-  }
-}
-
-function editBanner(){
-  const cur = localStorage.getItem('cthBanner_v1') || "";
-  const url = prompt("Enter Banner Image URL (Leave blank to remove):", cur);
-  if(url !== null) {
-    localStorage.setItem('cthBanner_v1', url);
-    const img = document.getElementById('bannerImage');
-    if(url.trim() === "") { img.classList.add('hidden'); } 
-    else { img.src = url; img.classList.remove('hidden'); }
-  }
-}
-
-function editFeedbackLink() {
-  const cur = localStorage.getItem('cthFeedback_v1') || "";
-  const url = prompt("Enter Feedback Form URL:", cur);
-  if(url !== null) {
-      localStorage.setItem('cthFeedback_v1', url.trim());
-      if(url.trim() !== "") {
-          document.getElementById('feedbackLinkBtn').href = url.trim();
-          document.getElementById('feedbackContent').classList.remove('hidden');
-          document.getElementById('feedbackEmptyMsg').classList.add('hidden');
-      } else {
-          document.getElementById('feedbackContent').classList.add('hidden');
-          document.getElementById('feedbackEmptyMsg').classList.remove('hidden');
-      }
-  }
-}
-
-function saveDataLocally(){ localStorage.setItem('cthBusData_v10', JSON.stringify(scheduleData)); }
-
-let editMap = null;
-let editMarker = null;
-
-function initLeafletMap(lat, lng) {
-    if (!editMap) {
-        editMap = L.map('modalMap').setView([lat, lng], 14);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(editMap);
-        editMarker = L.marker([lat, lng], {draggable: true}).addTo(editMap);
-        editMarker.on('dragend', function (e) {
-            const pos = editMarker.getLatLng();
-            document.getElementById('modalLat').value = pos.lat.toFixed(6);
-            document.getElementById('modalLng').value = pos.lng.toFixed(6);
-        });
-    } else {
-        editMap.setView([lat, lng], 14);
-        editMarker.setLatLng([lat, lng]);
-    }
-    setTimeout(() => { editMap.invalidateSize(); }, 200);
-}
-
-function openModal(mode, index = null) {
-  document.getElementById('roundModal').classList.remove('hidden');
-  document.getElementById('modalMode').value = mode;
-  document.getElementById('modalIndex').value = index !== null ? index : '';
-
-  // Calculate default regional coordinate for new stops based on current line data
-  let lat = "13.2946", lng = "100.9452"; 
-  const currentData = scheduleData[currentLine][currentShift];
-  if(currentData && currentData.length > 0) {
-      lat = currentData[0].lat !== "0" ? currentData[0].lat : lat;
-      lng = currentData[0].lng !== "0" ? currentData[0].lng : lng;
-  }
-
-  let t = "06:00", l = "", img = "";
-
-  if (mode === 'edit') {
-      document.getElementById('modalTitle').innerText = "Edit Stop";
-      const item = scheduleData[currentLine][currentShift][index];
-      t = item.time || ""; l = item.location || ""; img = item.img || "";
-      lat = (item.lat && item.lat !== "0") ? item.lat : lat;
-      lng = (item.lng && item.lng !== "0") ? item.lng : lng;
-  } else {
-      document.getElementById('modalTitle').innerText = "Add New Stop";
-  }
-
-  document.getElementById('modalTime').value = t;
-  document.getElementById('modalLoc').value = l;
-  document.getElementById('modalImg').value = img;
-  document.getElementById('modalLat').value = lat;
-  document.getElementById('modalLng').value = lng;
-
-  initLeafletMap(parseFloat(lat), parseFloat(lng));
-}
-
-function closeModal() { document.getElementById('roundModal').classList.add('hidden'); }
-
-function saveModal() {
-  const mode = document.getElementById('modalMode').value;
-  const index = document.getElementById('modalIndex').value;
-  const time = document.getElementById('modalTime').value.trim();
-  const loc = document.getElementById('modalLoc').value.trim();
-  const img = document.getElementById('modalImg').value.trim();
-  const lat = document.getElementById('modalLat').value.trim();
-  const lng = document.getElementById('modalLng').value.trim();
-
-  if(!time || !loc) { alert("Time and Location are required."); return; }
-
-  const data = scheduleData[currentLine][currentShift];
-
-  if(mode === 'add') {
-      if(data.length >= 30) return alert("Max 30 rounds.");
-      data.push({ round: data.length + 1, time, location: loc, lat, lng, img });
-  } else if (mode === 'edit') {
-      const item = data[index];
-      item.time = time; item.location = loc; item.lat = lat; item.lng = lng; item.img = img;
-  }
-
-  saveDataLocally(); renderScheduleData(); closeModal();
-}
-
-function deleteRound(index){
-  if(confirm("Delete this round?")){
-    scheduleData[currentLine][currentShift].splice(index,1);
-    scheduleData[currentLine][currentShift].forEach((it,i) => it.round = i+1);
-    saveDataLocally(); renderScheduleData();
-  }
-}
-
-/* ================= CSV UPLOAD ================= */
-function buildEmptyData(){
+function buildSeedData() {
   const data = {};
-  zonesConfig.forEach(z => z.lines.forEach(l => { data[l.id] = { t0730:[], t1930:[], t1700:[], t0500:[] }; }));
-  
-  const rawRoutesMapping = {
-   "l1": "แยกบางแสน|05:50||||13.311948|100.947411,ตลาดหนองมน (สะพานลอย)|05:53||||13.291460|100.949898,ศาลารอรถแยกวัดตาลล้อม|05:55||||13.306032|100.957674,แยกวัดท้ายดอน|05:58||||13.303850|100.938893,แยกเหมือง|06:00|18:00|||13.285318|100.945625,หน้าสถานีตำรวจทางหลวง|06:04|18:04|||13.302118|100.960805,ศาลาคลองน้ำเหม็น|06:08|18:08|||13.289628|100.926052,หน้า CPF|06:01|18:01|||13.302473|100.944205,ซอยหินเพิง|06:12|18:12|||13.287839|100.926372,หน้าโลตัส|06:13|18:13|||13.287700|100.947530,สะพานลอยบางพระ|06:14|18:14|||13.306489|100.939287,แยกตัดทางรถไฟ (คอเขาบางพระ)|06:16|18:16|||13.312678|100.944204,ซอยเรือนทะเล|06:17|18:17|||13.297412|100.952049,หน้าหมู่บ้านไทยออยล์|06:18|18:18|||13.297651|100.939648",
-   "l2": "ซอยวัดเขาแตงอ่อน|06:02|18:02|||13.171076|100.945391,ซอยวัดวังหิน|06:22|18:22|||13.161580|100.923316,ซอยจ่าบัน (ตรงข้าม บ. SECOM)|06:23|18:23|||13.158370|100.915367,สะพานลอยศรีราชา|06:25|18:25|||13.157745|100.917705,ห้างตึกคอมศรีราชา|06:27|18:27|||13.148005|100.919166,หน้าทางเข้า ร.พ. สมเด็จฯ|06:29|18:29|||13.166645|100.942197,ซอย ส.บุญสร้าง|06:03|18:03|||13.184199|100.927416,หน้าหมู่บ้านศรีราชา|06:31|18:31|||13.162458|100.947401",
-   "l13": "หอหลังคาแดง|06:25|18:25|||13.108702|100.922363,เซเว่นหน้าตึก21|06:26|18:26|||13.121056|100.932181,ป้อมตำรวจเคหะ|06:27|18:27|||13.126251|100.941216,หน้าโอเค รีสอร์ท|06:29|18:29|||13.122539|100.916379,หน้าคอนโด|06:30|18:30|||13.117598|100.930463",
-   "l15": "หน้า รร. ซากยายจีน|06:02|18:02|||13.110566|100.942879,ซอยหน้าหมู่บ้านแฟมิลี่ปาร์ค|06:22|18:22|||13.110011|100.919388,เซเว่นแยกเขาน้ำซับ|06:23|18:23|||13.101400|100.921676,ม.เกษตรประตู3|06:24|18:24|||13.092591|100.924453",
-   "l17": "หมู่บ้านธนาวิล|06:17|18:17|||13.158568|100.940954,หมู่บ้านกรีนวิว 2|06:19|18:19|||13.157079|100.921499,หน้าวัดประทานพร|06:21|18:21|||13.132797|100.928825,เซเว่นเขาน้ำซับ|06:23|18:23|||13.138724|100.924177,หมู่บ้านเปรมสุข2|06:02|18:02|||13.134708|100.924505,หอจุ๊บแจง|06:21|18:21|||13.144219|100.922340",
-   "l7": "หน้าโรงไฟฟ้าไร่ 1|06:13|18:13|||13.076274|100.990017,หน้าร้านเครื่องใช้ไฟฟ้า(ตรงข้ามตลาดไร่1)|06:15|18:15|||13.075615|100.979773,หน้าตลาดพระพรหม|06:17|18:17|||13.077392|100.984905,หน้าธนาคารกรุงเทพ|06:19|18:19|||13.097615|100.997543,หน้าไลอ้อน|06:02|18:02|||13.076057|101.003587",
-   "l8": "ศาลารอรถ ข้างเต้นท์รถ JK ออโต้|06:01|18:01|||13.093840|100.979461,ตรงข้ามร้านอาหารครัวริมบึง|06:01|18:01|||13.096317|101.001192,ร้านทำป้าย จิตรกรโฆษณา|06:11|18:11|||13.099293|100.975743,โรงเรียนเสริมสวยคุณอ้อม|06:12|18:12|||13.095983|100.981990,หอพัก SPK ตรงข้ามตลาดนัด|06:14|18:14|||13.085187|100.985459,ตรงข้ามหมู่บ้านโกลเด้นเพลส|06:15|18:15|||13.099166|100.984094,หน้าเซเว่น พานทองแท้ 4|06:16|18:16|||13.099354|101.012843,ศาลารอรถ หน้าหมู่บ้านพานทองแท้ 1|06:17|18:17|||13.080820|101.011710,ร้านขายเครื่องใช้ไฟฟ้า พานทองแท้2|06:18|18:18|||13.075990|101.006142,หน้าอู่เอกเจริญยนต์|06:19|18:19|||13.092209|100.986829,ร้านไก่ย่างวิเชียรบุรี|06:02|18:02|||13.082590|100.978867,หน้าอู่แจ็คเซอร์วิส|06:21|18:21|||13.073102|100.998862,ศารลารอรถหน้าอู่รุ่งวัฒนา|06:22|18:22|||13.086954|100.990623,หน้าสนามฟุตบอลหญ้าเทียม|06:23|18:23|||13.095327|100.996931,ร้านอะไหล่มอเตอร์ไซข้างเต้นท์รถแหลมทอง|06:24|18:24|||13.076343|101.012863,ศาลารอรถหน้าร้านวัสดุก่อสร้าง|06:25|18:25|||13.083601|100.997019,หน้าหมู่บ้าน เบต้าฮิล|06:26|18:26|||13.072763|100.980448,หน้าอู่ซ่อมรถบรรหาญ ซอยขาหมูดงตาล|06:27|18:27|||13.100761|100.978860,หน้าคลีนิกทันตกรรม ยิ้มกว้าง|06:28|18:28|||13.085157|100.992229",
-   "l9": "หน้าร้านของเล่นเด็กเฟื่องฟ้า|06:00|18:00|||13.079921|100.981685,หน้าตลาดวรกิจ|06:02|18:02|||13.068425|100.976579,หน้าร้านผ้าม่าน|06:04|18:04|||13.082102|100.994105,ปั้มน้ำมัน ปตท.บึงทอง|06:06|18:06|||13.091352|100.976625,ปั้มเชลล์บึงทอง|06:08|18:08|||13.084840|100.979402",
-   "l28": "หน้า ม.แหลมบังกรีนวิว|06:01|18:01|||13.070038|100.991879,เซเว่นตลาดเมืองทอง|06:11|18:11|||13.089592|101.005276,หน้า ม.จิตอารีย์|06:12|18:12|||13.080675|100.975199,จุกกะเฌอค้าไม้|06:14|18:14|||13.077917|101.000402,ซอยสิบแสน|06:16|18:16|||13.073905|100.985739,เซเว่นจุกกะเฌอ|06:18|18:18|||13.077224|101.001210,หน้าหมู่บ้านธนาวัลย์|06:19|18:19|||13.092685|100.987789,ปั้ม ปตท.หลังสนามบิน|06:02|18:02|||13.101291|100.990844",
-   "l10": "หน้าเซเว่นแยกหนองคล้าใหม่|06:15|18:15|||13.100463|100.997664,หน้าตลาดอุดมกิจ|06:02|18:02|||13.102387|101.009906",
-   "l29": "หน้าก๋วยเตี๋ยวไก่มะระ|06:02|18:02|||13.085435|100.976271,หน้าร้านผ้าม่าน|06:21|18:21|||13.099719|100.974767,ตรงข้ามเซเว่น ม.เทพธาริน|06:23|18:23|||13.081076|100.977278,หน้าTop|06:24|18:24|||13.089211|100.979791,หน้าตลาดสดรัตนากร|06:25|18:25|||13.091348|101.012796,หน้าทางเข้าหมู่บ้านสหชัย|06:26|18:26|||13.102033|100.993197,หอใหม่หน้าตลาดนัดทางรถไฟ|06:27|18:27|||13.089581|101.008175,หน้าหอพักก่อนถึงสี่แยกเทคโน|06:28|18:28|||13.074631|100.999841,หน้าร้านหมูกระทะ|06:02|18:03|||13.081517|100.995168",
-   "l16": "หอพักดีพร้อม|06:08|18:08|||13.083850|100.997300,7-11 ซอยนายขาว|06:09|18:09|||13.070404|101.007102,จุดสามแยกบายพาส|06:01|18:01|||13.086571|100.990090,หอพักอยู่สบาย|06:11|18:11|||13.096889|100.985425,ตำนานชลบ่อยาง|06:12|18:12|||13.106171|100.989400,ตึกไทย-ญี่ปุ่น|06:13|18:13|||13.079325|100.997514,หอพักต่อศักดิ์|06:14|18:14|||13.090968|100.989755,ตึกฟ้าขาว|06:15|18:15|||13.090698|100.996608",
-   "l4": "ศาลารอรถพัทยาใต้|06:05|18:05|||12.935653|100.864545,กรมทางหลวงพัทยาใต้|06:06|18:06|||12.936625|100.874748,ซอยเขาน้อย|06:07|18:07|||12.907146|100.863392,ศาลาก่อนถึงไฟแดงพัทยากลาง|06:08|18:08|||12.938387|100.880266,ปั๊ม บางจาก พัทยากลาง|06:01|18:01|||12.921232|100.895341,ซอย สนามกลอฟ์|06:12|18:12|||12.939344|100.882959,โรงเรียนพระมหาไถ่|06:14|18:14|||12.932918|100.873867,ปั๊ม ปตท.|06:15|18:15|||12.917647|100.886020,ไฟแดงพัทยาเหนือ|06:16|18:16|||12.940238|100.870725,หน้าวัดหนองใหญ่|06:18|18:18|||12.911602|100.898802,หน้าเมืองจำลอง|06:02|18:02|||12.906218|100.871396,หน้าสุเหร่าแขก|06:21|18:21|||12.929212|100.880852,ปั๊ม บางจาก นาเกลือ|06:24|18:24|||12.920680|100.862706,หน้าธนาคารไทยพานิชย์ นาเกลือ|06:25|18:25|||12.904447|100.886789,สะพานลอยหน้าโรงเรียนบางละมุง|06:28|18:28|||12.923690|100.880565,ไฟแดงโรงไม้ขีด|06:29|18:29|||12.918540|100.885665,หน้าศูนย์โตโยต้า|06:03|18:03|||12.943873|100.871874,ซอยโรงเลื่อย|06:32|18:32|||12.905550|100.897509",
-   "l5": "สะพานลอยจิตพาวัน|06:18|18:33|||13.017447|100.944405,แยกกระทิงลาย|06:19|18:34|||13.003693|100.911863,หน้า บ.โปรตอน เทรนดิ้ง|06:02|18:18|||13.016300|100.923985,สะพานลอยบ้านโรงโป๊ะ|06:21|18:02|||13.009175|100.936459,หน้าวัดประชุมคงคา|06:21|18:21|||13.010245|100.922115",
-   "l6": "โรงเรียนศรีสุวิทย์|06:22|18:22|||13.018942|100.907428,หน้าสถานสงเคราะห์คนชรา|06:23|18:23|||13.041707|100.934469,ศาลาวัดบางละมุง|06:25|18:25|||13.010101|100.928898,หอลัดดา|06:26|18:26|||13.037465|100.914290,หน้าร้านพนัชกรแม็กยางทุ่งกราด|06:26|18:26|||13.029278|100.943657,ร้านค้าเปตอง shop|06:27|18:27|||13.028360|100.913286",
-   "l26": "สะพานลอยโรงเรียนทุ่งกราด|06:03|18:03|||13.013157|100.933939,ใต้สะพาน|06:31|18:31|||13.004771|100.929775,โรงงานกระจก|06:32|18:32|||13.004813|100.924074,ปากซอยทุ่งรวงทอง|06:33|18:33|||13.019248|100.938887,ศาลาต้นมะม่วง|06:34|18:34|||13.033336|100.938136,หน้าโรงเรียนวัดบ้านนา|06:35|18:35|||13.004527|100.911599,หน้าปั้มคาลเท็กซ์|06:36|18:36|||13.042671|100.935558,สะพานลอยฮาร์เบอร์มอร์|06:37|18:37|||13.028931|100.939710",
-   "l11": "ศาลารอรถป้อมหนองขาม|06:12|18:12|||13.041828|100.945145,หน้าร้าน ว.มินิมาร์ท|06:13|18:13|||13.052881|100.950586,หมู่บ้านเฟื่องฟ้า/หอพักสีฟ้า|06:14|18:14|||13.050296|100.953096,หน้าวัดต้นมะม่วง|06:15|18:15|||13.049698|100.930677,หอพัก400ห้อง|06:17|18:17|||13.039256|100.958816,เนินเขาดิน|06:02|18:02|||13.068986|100.960025,หอพักเขาดิน|06:21|18:21|||13.056833|100.961274,วัดปชานาถ|06:23|18:23|||13.038088|100.940390,หน้าร้านป้าซิ่ว|06:24|18:24|||13.050855|100.939765,แยกดาวเทียม|06:25|18:28|||13.035292|100.930753,สะพานลอยมิชลิน|06:31|18:31|||13.034614|100.966041,ซอย เพ็ญรุ่ง|06:32|18:32|||13.038918|100.944443,สะพานลอยสี่มุมเมือง|06:33|18:33|||13.059343|100.946986,ซอย หนองเป็ดหาย|06:34|18:34|||13.039571|100.958608",
-   "l12": "ชอย 10 ต้นยาง|06:02|18:02|||13.044180|100.932831,ซอยเซียสวัสดิ์ (หน้าคุณตา อพาร์ทเม้นท์)|06:21|18:21|||13.058995|100.959252,หน้าบริษัท STC (ติดโกดังค้าส่งชลบุรีแสนเจริญ)|06:22|18:22|||13.069148|100.947228,แยก 7-11|06:23|18:23|||13.065905|100.953363,ถนนหนองแร่|06:25|18:25|||13.046132|100.936794",
-   "l27": "ซอยหนองเป็ดหาย|06:27|18:27|||13.036701|100.947751,สถานีตำรวจแหลมฉบัง|06:28|18:28|||13.051873|100.933628",
-   "l19": "22301 หน้าวัดใหม่|06:20|18:20|||12.998242|100.931048,22302 ซอย 12|06:22|18:22|||12.987496|100.935237,22303 ซอย 8|06:24|18:24|||12.999129|100.899750,22304 ตึกขาว(ซอย6)|06:25|18:25|||13.016220|100.912412,22305 แยกโต๊ะสนุ๊ก|06:27|18:27|||13.001361|100.925230,22306 แยกวงเดือน|06:29|18:29|||12.988914|100.925945,22307 ตลาดบ้านทุ่ง|06:30|18:30|||13.012654|100.910725",
-   "l18": "หน้าเฉลิมไทย|05:05|17:05|||13.363417|100.984893,เลยสี่แยกบ้านสวน (หน้าศูนย์ภาษา NAVA)|05:52|17:52|||13.370926|100.965093,หน้าขนส่ง|05:53|17:53|||13.356542|100.965637,หน้าโรงพยาบาล|05:54|17:54|||13.365818|100.992267,แยก โรงเรียนชลชาย|05:55|17:55|||13.345032|101.002468,ตึกน้ำ|05:56|17:56|||13.354548|101.003879,หน้าโลตัส|05:57|17:57|||13.342781|100.966528,สะพานลอยห้วยกะปิ|05:58|17:58|||13.360752|100.977740,หน้าโรงเรียนห้วยกะปิ|05:59|17:59|||13.365853|100.982151,แยกคีรี|06:00|18:00|||13.344891|100.964847,หน้าทางเข้าโรงงานตุ๊กตา|06:01|18:01|||13.370833|100.973082,แยกอ่างศิลา|06:02|18:02|||13.374650|100.983895,หน้าทางเข้าวิทยาลัยสารพัดช่าง|06:04|18:04|||13.359473|100.989965,แยกบางแสน||18:05|||13.365816|100.987820,ตลาดหนองมน (สะพานลอย)||18:06|||13.364613|100.971005,ศาลารอรถแยกวัดตาลล้อม||18:07|||13.353543|100.970952,แยกวัดท้ายดอน||18:08|||13.342915|100.982263",
-   "l21": "เฉลิมไทยชลบุรี (หน้าวัดจีน)|06:02|17:45|||13.379031|100.997835,หน้าวิทยาลัยอาชีวฯ ชลบุรี|06:22||||13.367818|100.975438,หน้าธนาคารธนชาติ (ลุมพินีคอนโดชลบุรี)|06:23||||13.367643|100.983880,สะพานลอย สี่แยกโรงเรียนชลชาย|06:25||||13.341949|101.002560,สะพานลอยหน้าโลตัสชลบุรี|06:26||||13.349269|100.979090,สะพานลอยหน้าเซ็นทรัล-ชลบุรี|06:27||||13.362448|100.975633,แยกคีรี|06:29||||13.369844|100.987416,สะพานลอยหน้าบิ๊กซีอ่างศิลา (โฮมโปร)|06:03||||13.349977|100.987656,หน้าแฮปปี้เวิลด์|06:32||||13.343914|100.978702,หน้าหมู่บ้าน ณิชาดา|06:35||||13.348647|101.003238,ศาลารอรถ เยื้องตรงข้ามร้าน ส:วรกิจ|06:37||||13.374270|100.979280,เวลารับพนักงานกลับ||17:45|||13.362604|100.974853"
-  };
-
-  Object.keys(rawRoutesMapping).forEach(lineId => {
-      const lineData = rawRoutesMapping[lineId];
-      if(!lineData || !data[lineId]) return;
-      const stops = lineData.split(',');
-      stops.forEach(stop => {
-          const parts = stop.split('|');
-          const locName = parts[0], t1 = parts[1], t2 = parts[2];
-          const t3 = parts[3], t4 = parts[4];
-          const latVal = parts[5] || "13.2946";
-          const lngVal = parts[6] || "100.9452";
-          
-          if(t1) data[lineId].t0730.push({ round: data[lineId].t0730.length + 1, time: t1, location: locName, lat: latVal, lng: lngVal, img:"" });
-          if(t2) {
-              if(["l21","l22","l23","l24","l25"].includes(lineId) || t2.startsWith("16:")) {
-                  data[lineId].t1700.push({ round: data[lineId].t1700.length + 1, time: t2, location: locName, lat: latVal, lng: lngVal, img:"" });
-              } else {
-                  data[lineId].t1930.push({ round: data[lineId].t1930.length + 1, time: t2, location: locName, lat: latVal, lng: lngVal, img:"" });
-              }
-          }
-      });
+  zonesConfig.forEach(z => z.lines.forEach(l => data[l.id] = emptyShifts()));
+  Object.entries(RAW_ROUTES).forEach(([lineId, str]) => {
+    if (!data[lineId]) return;
+    str.split(",").forEach(stop => {
+      const p = stop.split("|");
+      const base = { location:p[0], lat:p[5] || "", lng:p[6] || "", img:"" };
+      if (p[1]) data[lineId].t0730.push({ ...base, time:p[1] });
+      if (p[2]) {
+        const outbound = lineId === "l21" || p[2] < "18:00";   // 17:xx = going home, 18:xx = night-shift pick-up
+        data[lineId][outbound ? "t1700" : "t1930"].push({ ...base, time:p[2] });
+      }
+      if (p[3]) data[lineId].t1700.push({ ...base, time:p[3] });
+      if (p[4]) data[lineId].t0500.push({ ...base, time:p[4] });
+    });
   });
   return data;
 }
 
-function downloadCSVTemplate(){
-  const csv = "\uFEFFTime,Location Name,Latitude,Longitude,Image URL\n06:00,Example Stop 1,13.2946,100.9452,https://example.com/image.jpg";
-  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `Template_${currentLine}_${currentShift}.csv`;
-  a.click();
+function sortStops(arr) {
+  arr.sort((a, b) => (toMin(a.time) ?? 9999) - (toMin(b.time) ?? 9999));
+  arr.forEach((d, i) => d.round = i + 1);
+  return arr;
+}
+function saveSchedule() { Store.set(LS.data, scheduleData); }
+function saveAll() {
+  Store.set(LS.zones, zonesConfig); Store.set(LS.contacts, contactsData);
+  Store.set(LS.data, scheduleData); Store.set(LS.ann, announceData);
+}
+const getStops = (lineId, shift) => (scheduleData[lineId] && scheduleData[lineId][shift]) || [];
+function getLineInfo(id) {
+  for (const z of zonesConfig) { const l = z.lines.find(x => x.id === id); if (l) return { ...l, zone:z }; }
+  return { id, name:"Unknown", zone:null };
+}
+const allLines = () => zonesConfig.flatMap(z => z.lines.map(l => ({ ...l, zone:z })));
+
+/* =====================================================================
+   STATE + NAV
+   ===================================================================== */
+let currentZone = zonesConfig[0]?.id, currentLine = zonesConfig[0]?.lines[0]?.id, currentShift = "t0730";
+let isAdmin = false, currentEditAnnounce = "global";
+
+function switchMainTab(tabId) {
+  if (!TAB_TITLES[tabId]) return;
+  document.querySelectorAll(".tab-content").forEach(e => e.classList.add("hidden"));
+  document.querySelectorAll(".nav-btn").forEach(e => e.classList.toggle("active", e.dataset.tab === tabId));
+  $(tabId).classList.remove("hidden");
+  $("topTitle").textContent = TAB_TITLES[tabId][0];
+  $("topSub").textContent = TAB_TITLES[tabId][1];
+  if (tabId === "nearest" && NM.map) setTimeout(() => NM.map.invalidateSize(), 150);
+  if (tabId === "routemap") initRouteMap();
+  if (tabId === "adminAnnounceTab") renderAnnounceEditor();
 }
 
-function triggerFileUpload(){ document.getElementById('csvFileInput').click(); }
+document.querySelectorAll(".nav-btn").forEach(b => b.addEventListener("click", () => switchMainTab(b.dataset.tab)));
 
-function handleFileUpload(e){
-  const file = e.target.files[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => parseCSV(ev.target.result);
-  reader.readAsText(file);
+/* =====================================================================
+   SCHEDULE TAB
+   ===================================================================== */
+function initUI() {
+  $("chipDate").textContent = new Date().toLocaleDateString("en-GB", { weekday:"short", day:"2-digit", month:"short", year:"numeric" });
+  $("shiftButtons").innerHTML = SHIFTS.map(s =>
+    `<button class="pick time-pick${s.id === currentShift ? " active" : ""}" data-shift="${s.id}">${s.th}<small class="opt">${s.en}</small></button>`).join("");
+  renderZoneButtons(); renderContacts(); renderLineButtons(); renderScheduleData();
 }
 
-function parseCSV(text){
-  const lines = text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(l => l.trim().length > 0);
-  if(lines.length < 2) return alert("CSV empty or missing data.");
-  const rows = [];
-  for(let i=1; i<lines.length && rows.length<30; i++){
-    const c = lines[i].split(',');
-    if(c.length >= 2){
-      rows.push({ round:rows.length+1, time:c[0].trim(), location:c[1].trim(),
-                  lat:c[2] ? c[2].trim() : "13.2946", lng:c[3] ? c[3].trim() : "100.9452", img:c[4] ? c[4].trim() : "" });
+function renderZoneButtons() {
+  $("zoneButtonsContainer").innerHTML = zonesConfig.map(z =>
+    `<button class="pick zone-pick${z.id === currentZone ? " active" : ""}" data-zone="${esc(z.id)}">${esc(z.name)}<small>${esc(z.label)}</small></button>`).join("");
+}
+function renderLineButtons() {
+  const zone = zonesConfig.find(z => z.id === currentZone);
+  if (!zone) { $("lineButtonsContainer").innerHTML = ""; return; }
+  if (!zone.lines.some(l => l.id === currentLine)) currentLine = zone.lines[0]?.id;
+  $("lineButtonsContainer").innerHTML = zone.lines.length
+    ? zone.lines.map(l => `<button class="pick line-pick${l.id === currentLine ? " active" : ""}" data-line="${esc(l.id)}">${esc(l.name)}</button>`).join("")
+    : `<span class="card-note">ยังไม่มีสายในโซนนี้</span>`;
+}
+
+$("zoneButtonsContainer").addEventListener("click", e => {
+  const b = e.target.closest("[data-zone]"); if (!b) return;
+  currentZone = b.dataset.zone; renderZoneButtons(); renderLineButtons(); renderScheduleData();
+});
+$("lineButtonsContainer").addEventListener("click", e => {
+  const b = e.target.closest("[data-line]"); if (!b) return;
+  currentLine = b.dataset.line; renderLineButtons(); renderScheduleData();
+});
+$("shiftButtons").addEventListener("click", e => {
+  const b = e.target.closest("[data-shift]"); if (!b) return;
+  currentShift = b.dataset.shift;
+  document.querySelectorAll("#shiftButtons .pick").forEach(x => x.classList.toggle("active", x === b));
+  renderScheduleData();
+});
+
+function setScheduleView(type) {
+  const isTable = type === "table";
+  $("tableViewContainer").classList.toggle("hidden", !isTable);
+  $("timelineContainer").classList.toggle("hidden", isTable);
+  $("btnTableView").classList.toggle("active", isTable);
+  $("btnTimelineView").classList.toggle("active", !isTable);
+}
+$("btnTableView").onclick = () => setScheduleView("table");
+$("btnTimelineView").onclick = () => setScheduleView("timeline");
+$("openOnMapBtn").onclick = () => { RM.zone = currentZone; RM.line = currentLine; RM.shift = currentShift; switchMainTab("routemap"); syncRmSelectors(); renderRouteMap(true); };
+
+function mapLinkHtml(s) {
+  if (!hasCoord(s)) return `<span class="tl-loc">${esc(s.location)}</span><span class="nocoord">(ยังไม่มีพิกัด)</span>`;
+  return `<a href="https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}" target="_blank" rel="noopener" class="map-link">📍 ${esc(s.location)}</a>`;
+}
+const imgHtml = s => safeUrl(s.img) ? `<a href="${esc(safeUrl(s.img))}" target="_blank" rel="noopener" class="img-link">🖼️ รูปสถานที่</a>` : "";
+
+function renderScheduleData() {
+  const line = getLineInfo(currentLine);
+  const label = `${line.name} · ${SHIFT_LABEL[currentShift]}`;
+  $("adminCurrentViewLabel").textContent = "— " + label;
+  $("routeSummary").textContent = "/ " + label;
+  const data = getStops(currentLine, currentShift);
+
+  $("kpiRounds").textContent = data.length;
+  $("kpiFirst").textContent = data[0]?.time || "–";
+  $("kpiFirstFoot").textContent = data[0]?.location || "ไม่มีข้อมูล";
+  $("kpiLast").textContent = data.at(-1)?.time || "–";
+  $("kpiLastFoot").textContent = data.at(-1)?.location || "ไม่มีข้อมูล";
+  if (currentLine) $("kpiIssues").textContent = qualityIssues(currentLine, currentShift).length + " รายการ";
+
+  if (!data.length) {
+    const e = `<span class="big">🗓️</span>ยังไม่มีจุดรับในช่วงเวลานี้`;
+    $("tableBody").innerHTML = `<tr><td colspan="4" class="empty">${e}</td></tr>`;
+    $("timelineBody").innerHTML = `<div class="empty">${e}</div>`;
+  } else {
+    $("tableBody").innerHTML = data.map((s, i) => `
+      <tr><td><span class="round-badge">${i + 1}</span></td>
+      <td class="time-cell">${esc(s.time)}</td>
+      <td>${mapLinkHtml(s)} ${imgHtml(s)}</td>
+      <td class="admin-col${isAdmin ? "" : " hidden"}">
+        <button class="action-btn edit-btn" data-edit="${i}">Edit</button>
+        <button class="action-btn del-btn" data-del="${i}">Del</button></td></tr>`).join("");
+    $("timelineBody").innerHTML = data.map((s, i) => `
+      <div class="tl-item"><div class="tl-rail"><div class="tl-line"></div><div class="tl-dot"></div></div>
+      <div class="tl-body"><span class="tl-time">${esc(s.time)}</span><span class="tl-round">#${i + 1}</span>
+      <span class="tl-loc">${mapLinkHtml(s)} ${imgHtml(s)}</span></div></div>`).join("");
+  }
+  updateAnnouncementBanner();
+}
+$("tableBody").addEventListener("click", e => {
+  const ed = e.target.closest("[data-edit]"), del = e.target.closest("[data-del]");
+  if (ed) openModal("edit", +ed.dataset.edit, { lineId:currentLine, shift:currentShift });
+  if (del) deleteStop(currentLine, currentShift, +del.dataset.del);
+});
+
+function updateAnnouncementBanner() {
+  const lineTxt = (announceData[currentLine] || "").trim(), globalTxt = (announceData.global || "").trim();
+  const el = $("announcementText");
+  if (lineTxt) el.innerHTML = `<span class="chip amber" style="margin-right:8px">${esc(getLineInfo(currentLine).name)}</span>${esc(lineTxt)}`;
+  else if (globalTxt) el.innerHTML = `<span class="chip blue" style="margin-right:8px">ทั่วไป</span>${esc(globalTxt)}`;
+  else el.textContent = "ยังไม่มีประกาศใหม่";
+}
+
+function renderContacts() {
+  $("contactsContainer").innerHTML = zonesConfig.map(z => `
+    <div class="zone-block">
+      <div class="zone-head"><span class="chip">${esc(z.name)}</span><h3>${esc(z.label)}</h3></div>
+      <div class="contact-grid">${z.lines.map(l => `
+        <div class="contact-card">
+          <div class="avatar">${esc(l.name.trim().charAt(0))}</div>
+          <div style="flex-grow:1">
+            <div class="contact-name">${esc(l.name)}</div>
+            <div class="contact-person">👤 ${esc(contactsData[l.id] || "ติดต่อผู้ประสานงาน")}</div>
+          </div>
+          <button class="action-btn edit-btn admin-col${isAdmin ? "" : " hidden"}" data-contact="${esc(l.id)}">Edit</button>
+        </div>`).join("")}</div>
+    </div>`).join("");
+}
+$("contactsContainer").addEventListener("click", e => {
+  const b = e.target.closest("[data-contact]"); if (!b) return;
+  const id = b.dataset.contact;
+  const v = prompt("Coordinator (ชื่อ & เบอร์โทร):", contactsData[id] || "");
+  if (v && v.trim()) { contactsData[id] = v.trim(); Store.set(LS.contacts, contactsData); renderContacts(); }
+});
+
+/* =====================================================================
+   NEAREST STOP FINDER
+   ===================================================================== */
+const NM = { map:null, layer:null, user:null };
+
+$("findNearestBtn").onclick = () => {
+  const btn = $("findNearestBtn"), label = btn.textContent;
+  if (!navigator.geolocation) { toast("เบราว์เซอร์ไม่รองรับ GPS", "err"); return; }
+  btn.textContent = "กำลังหาตำแหน่ง…"; btn.disabled = true;
+  navigator.geolocation.getCurrentPosition(
+    p => { btn.textContent = label; btn.disabled = false; processNearestStops(p.coords.latitude, p.coords.longitude); },
+    () => { btn.textContent = label; btn.disabled = false; toast("ระบุตำแหน่งไม่ได้ — เปิด Location แล้วลองใหม่ หรือแตะบนแผนที่", "err"); showNearestMap(DEFAULT_CENTER[0], DEFAULT_CENTER[1], 11); },
+    { enableHighAccuracy:true, timeout:15000, maximumAge:60000 });
+};
+
+function showNearestMap(lat, lng, zoom = 14) {
+  $("nearestMapWrapper").classList.remove("hidden");
+  if (!NM.map) {
+    NM.map = L.map("nearestMapContainer").setView([lat, lng], zoom);
+    tiles(NM.map);
+    NM.layer = L.layerGroup().addTo(NM.map);
+    NM.map.on("click", e => processNearestStops(e.latlng.lat, e.latlng.lng, false));
+  } else NM.map.setView([lat, lng], zoom);
+  setTimeout(() => NM.map.invalidateSize(), 150);
+}
+
+function processNearestStops(userLat, userLng, recenter = true) {
+  // one card per physical stop per line (not per shift)
+  const byKey = new Map();
+  for (const lineId in scheduleData) {
+    if (getLineInfo(lineId).name === "Unknown") continue;
+    for (const shiftId in scheduleData[lineId]) {
+      scheduleData[lineId][shiftId].forEach(s => {
+        if (!hasCoord(s)) return;
+        const key = lineId + "|" + s.location.trim();
+        const d = haversineKm(userLat, userLng, +s.lat, +s.lng);
+        const cur = byKey.get(key) || { lineId, location:s.location, lat:+s.lat, lng:+s.lng, distance:d, times:[] };
+        cur.times.push({ shiftId, time:s.time });
+        if (d < cur.distance) Object.assign(cur, { lat:+s.lat, lng:+s.lng, distance:d });
+        byKey.set(key, cur);
+      });
     }
   }
-  if(confirm(`Overwrite THIS TIME SLOT with ${rows.length} rows?`)){
-    scheduleData[currentLine][currentShift] = rows;
-    saveDataLocally(); renderScheduleData();
-    alert("Updated!");
-  }
-  document.getElementById('csvFileInput').value = '';
+  const top = [...byKey.values()].sort((a, b) => a.distance - b.distance).slice(0, 5);
+
+  if (recenter || !NM.map) showNearestMap(userLat, userLng);
+  NM.layer.clearLayers();
+  NM.user = L.marker([userLat, userLng], { draggable:true, icon:L.divIcon({ className:"", html:'<div class="pin user"></div>', iconSize:[18,18], iconAnchor:[9,9] }) })
+    .bindTooltip("ตำแหน่งของคุณ — ลากเพื่อเปลี่ยน").addTo(NM.layer);
+  NM.user.on("dragend", () => { const p = NM.user.getLatLng(); processNearestStops(p.lat, p.lng, false); });
+
+  const out = $("nearestResults");
+  if (!top.length) { out.innerHTML = `<p class="empty">ยังไม่มีข้อมูลพิกัดในระบบ</p>`; return; }
+
+  const bounds = L.latLngBounds([[userLat, userLng]]);
+  top.forEach((s, i) => {
+    L.marker([s.lat, s.lng], { icon:numIcon(i + 1, "near") }).bindPopup(`<b>${esc(s.location)}</b><br>${esc(getLineInfo(s.lineId).name)}`).addTo(NM.layer);
+    bounds.extend([s.lat, s.lng]);
+  });
+  if (recenter) NM.map.fitBounds(bounds, { padding:[30, 30], maxZoom:16 });
+
+  out.innerHTML = `<div class="nearest-head">📍 จุดขึ้นรถที่ใกล้ที่สุด 5 อันดับ</div>` + top.map((s, i) => {
+    const line = getLineInfo(s.lineId);
+    const times = s.times.sort((a, b) => a.shiftId.localeCompare(b.shiftId)).map(t => `${SHIFT_LABEL[t.shiftId]}: <b>${esc(t.time)}</b>`).join(" · ");
+    const dist = s.distance < 1 ? Math.round(s.distance * 1000) + " m" : s.distance.toFixed(2) + " km";
+    return `<div class="nearest-card">
+      <div class="nc-head"><span class="nc-title">${i + 1}. ${esc(s.location)}</span><span class="nc-dist">${dist} (เส้นตรง)</span></div>
+      <div class="nc-details"><span>🚌 ${esc(line.name)}</span><span>🕒 ${times}</span></div>
+      <div class="nc-foot">
+        <a class="btn btn-ghost" style="text-decoration:none" target="_blank" rel="noopener"
+           href="https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLng}&destination=${s.lat},${s.lng}&travelmode=walking">🚶 นำทางเดิน</a>
+        <button class="btn btn-soft" data-jump="${esc(s.lineId)}" data-shift="${esc(s.times[0].shiftId)}">ดูตารางรถ</button>
+      </div></div>`;
+  }).join("");
+}
+$("nearestResults").addEventListener("click", e => {
+  const b = e.target.closest("[data-jump]"); if (!b) return;
+  const line = getLineInfo(b.dataset.jump);
+  currentZone = line.zone?.id || currentZone; currentLine = b.dataset.jump; currentShift = b.dataset.shift;
+  initUI(); switchMainTab("schedule");
+});
+
+/* =====================================================================
+   MAIN-ROAD CHECK (Overpass)
+   ===================================================================== */
+const roadCheck = {};   // coordKey -> { dist, lat, lng, road, level }
+
+async function fetchMainRoads(query) {
+  const q = `[out:json][timeout:25];way["highway"~"${MAIN_ROAD_REGEX}"]${query};out tags geom;`;
+  const r = await fetch(OVERPASS_URL, { method:"POST", body:"data=" + encodeURIComponent(q),
+    headers:{ "Content-Type":"application/x-www-form-urlencoded" } });
+  if (!r.ok) throw new Error("Overpass " + r.status);
+  return (await r.json()).elements || [];
 }
 
-// Open nearest on load
-switchMainTab('nearest', document.querySelector('.nav-btn[data-tab="nearest"]'));
+function nearestOnWays(lat, lng, ways) {
+  const kx = 111320 * Math.cos(lat * Math.PI / 180), ky = 110540;
+  let best = null;
+  for (const w of ways) {
+    const g = w.geometry || [];
+    for (let i = 0; i < g.length - 1; i++) {
+      const ax = (g[i].lon - lng) * kx, ay = (g[i].lat - lat) * ky;
+      const bx = (g[i + 1].lon - lng) * kx, by = (g[i + 1].lat - lat) * ky;
+      const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+      const t = l2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / l2)) : 0;
+      const px = ax + t * dx, py = ay + t * dy, d = Math.hypot(px, py);
+      if (!best || d < best.dist) {
+        const tg = w.tags || {};
+        best = { dist:d, lat:lat + py / ky, lng:lng + px / kx, road:tg.name || tg["name:th"] || tg.ref || tg.highway };
+      }
+    }
+  }
+  return best;
+}
+function classifyRoad(r) {
+  if (!r || r.dist > ROAD_SEARCH_M) return { level:"far", dist:r ? r.dist : null, road:r?.road, lat:r?.lat, lng:r?.lng };
+  return { ...r, level:r.dist <= ROAD_OK_M ? "ok" : r.dist <= ROAD_WARN_M ? "warn" : "far" };
+}
+function roadBadge(rc) {
+  if (!rc) return "";
+  const d = rc.dist == null ? `> ${ROAD_SEARCH_M} m` : Math.round(rc.dist) + " m";
+  return `<span class="badge ${rc.level}" title="${esc(rc.road || "")}">🛣️ ${d}</span>`;
+}
+
+async function checkStopsAgainstRoads(stops) {
+  const pts = stops.filter(hasCoord);
+  if (!pts.length) return 0;
+  const lats = pts.map(s => +s.lat), lngs = pts.map(s => +s.lng), pad = 0.006;
+  const ways = await fetchMainRoads(`(${Math.min(...lats) - pad},${Math.min(...lngs) - pad},${Math.max(...lats) + pad},${Math.max(...lngs) + pad})`);
+  pts.forEach(s => roadCheck[coordKey(s)] = classifyRoad(nearestOnWays(+s.lat, +s.lng, ways)));
+  return pts.length;
+}
+
+async function snapPointToRoad(lat, lng) {
+  const ways = await fetchMainRoads(`(around:${ROAD_SEARCH_M},${lat},${lng})`);
+  return classifyRoad(nearestOnWays(lat, lng, ways));
+}
+
+/* =====================================================================
+   ROUTE MAP TAB
+   ===================================================================== */
+const RM = { map:null, stops:null, route:null, others:null, snaps:null, markers:[], zone:null, line:null, shift:"t0730",
+             addMode:false, routeCtrl:null, routeKey:"", cache:{} };
+
+function initRouteMap() {
+  if (!RM.line) { RM.zone = currentZone; RM.line = currentLine; RM.shift = currentShift; }
+  if (RM.map) { setTimeout(() => RM.map.invalidateSize(), 150); return; }
+  RM.map = L.map("routeMap").setView(DEFAULT_CENTER, 12);
+  tiles(RM.map);
+  RM.others = L.layerGroup().addTo(RM.map);
+  RM.route = L.layerGroup().addTo(RM.map);
+  RM.snaps = L.layerGroup().addTo(RM.map);
+  RM.stops = L.layerGroup().addTo(RM.map);
+  RM.map.on("click", e => {
+    if (!isAdmin || !RM.addMode) return;
+    setAddMode(false);
+    openModal("add", null, { lineId:RM.line, shift:RM.shift, lat:e.latlng.lat, lng:e.latlng.lng });
+  });
+  $("rmShift").innerHTML = SHIFTS.map(s => `<option value="${s.id}">${s.th} — ${s.en}</option>`).join("");
+  syncRmSelectors();
+  renderRouteMap(true);
+  setTimeout(() => RM.map.invalidateSize(), 150);
+}
+
+function syncRmSelectors() {
+  $("rmZone").innerHTML = zonesConfig.map(z => `<option value="${esc(z.id)}">${esc(z.name)} — ${esc(z.label)}</option>`).join("");
+  $("rmZone").value = RM.zone;
+  const zone = zonesConfig.find(z => z.id === RM.zone) || zonesConfig[0];
+  if (zone && !zone.lines.some(l => l.id === RM.line)) RM.line = zone.lines[0]?.id;
+  $("rmLine").innerHTML = (zone?.lines || []).map(l => `<option value="${esc(l.id)}">${esc(l.name)} (${getStops(l.id, RM.shift).length} จุด)</option>`).join("");
+  $("rmLine").value = RM.line || "";
+  $("rmShift").value = RM.shift;
+}
+$("rmZone").onchange = e => { RM.zone = e.target.value; RM.line = null; syncRmSelectors(); renderRouteMap(true); };
+$("rmLine").onchange = e => { RM.line = e.target.value; renderRouteMap(true); };
+$("rmShift").onchange = e => { RM.shift = e.target.value; syncRmSelectors(); renderRouteMap(true); };
+$("rmRoad").onchange = () => renderRouteMap(false);
+$("rmAll").onchange = () => renderRouteMap(false);
+
+function setRmStatus(msg, cls = "") { const el = $("rmStatus"); el.textContent = msg; el.className = "rm-status " + cls; }
+
+function renderRouteMap(fit) {
+  if (!RM.map) return;
+  const stops = RM.line ? getStops(RM.line, RM.shift) : [];
+  RM.stops.clearLayers(); RM.snaps.clearLayers(); RM.others.clearLayers(); RM.markers = [];
+  const pts = [];
+
+  stops.forEach((s, i) => {
+    if (!hasCoord(s)) { RM.markers[i] = null; return; }
+    const lat = +s.lat, lng = +s.lng, rc = roadCheck[coordKey(s)];
+    pts.push([lat, lng]);
+    const m = L.marker([lat, lng], { icon:numIcon(i + 1, rc ? rc.level : ""), draggable:isAdmin, title:s.location, riseOnHover:true });
+    m.bindTooltip(`${s.time}  ${s.location}`, { direction:"top", offset:[0, -12] });
+    m.bindPopup(() => stopPopupHtml(s, i, rc));
+    m.on("dragend", () => { const p = m.getLatLng(); moveStop(RM.line, RM.shift, i, p.lat, p.lng); });
+    m.on("click", () => highlightItem(i));
+    m.addTo(RM.stops);
+    RM.markers[i] = m;
+    if (rc && rc.level !== "ok" && rc.lat != null)
+      L.polyline([[lat, lng], [rc.lat, rc.lng]], { color:"#F59E0B", weight:2, dashArray:"4 4" }).addTo(RM.snaps);
+  });
+
+  if ($("rmAll").checked) {
+    allLines().forEach(l => {
+      if (l.id === RM.line) return;
+      getStops(l.id, RM.shift).forEach(s => {
+        if (!hasCoord(s)) return;
+        L.circleMarker([+s.lat, +s.lng], { radius:5, color:"#94A3B8", weight:1, fillColor:"#CBD5E1", fillOpacity:.9 })
+          .bindTooltip(`${l.name}: ${s.location}`)
+          .on("click", () => { RM.zone = l.zone.id; RM.line = l.id; syncRmSelectors(); renderRouteMap(false); })
+          .addTo(RM.others);
+      });
+    });
+  }
+
+  if (fit) {
+    if (pts.length) RM.map.fitBounds(pts, { padding:[40, 40], maxZoom:16 });
+    else RM.map.setView(DEFAULT_CENTER, 12);
+  }
+  drawRoute(pts, stops);
+  renderRmList(stops);
+  renderQuality();
+  $("rmLegend").classList.toggle("hidden", !stops.some(s => roadCheck[coordKey(s)]));
+  $("rmSnapAllBtn").disabled = !stops.some(s => roadCheck[coordKey(s)]?.level === "warn");
+}
+
+function stopPopupHtml(s, i, rc) {
+  let h = `<div class="pop-title">${i + 1}. ${esc(s.location)}</div>
+           <div class="pop-sub">🕒 ${esc(s.time)} · ${esc(SHIFT_LABEL[RM.shift])}${rc ? `<br>🛣️ ${rc.dist == null ? "ไม่พบถนนหลักใกล้ๆ" : Math.round(rc.dist) + " m จาก " + esc(rc.road || "ถนนหลัก")}` : ""}</div>
+           <div class="pop-act"><a class="btn btn-ghost" style="text-decoration:none" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}">Google Maps</a>`;
+  if (isAdmin) {
+    h += `<button class="btn btn-soft" onclick="rmEdit(${i})">✏️ แก้ไข</button>`;
+    if (rc && rc.level !== "ok" && rc.lat != null) h += `<button class="btn btn-positive" onclick="rmSnap(${i})">✨ Snap</button>`;
+    h += `<button class="btn btn-danger" onclick="deleteStop(RM.line, RM.shift, ${i})">ลบ</button>`;
+  }
+  return h + `</div>`;
+}
+
+function renderRmList(stops) {
+  $("rmCount").textContent = `/ ${stops.length} จุด · ${getLineInfo(RM.line).name}`;
+  if (!stops.length) {
+    $("rmList").innerHTML = `<div class="empty"><span class="big">🗺️</span>ยังไม่มีจุดในรอบนี้${isAdmin ? "<br>กด “แตะแผนที่เพื่อเพิ่มจุด”" : ""}</div>`;
+    return;
+  }
+  $("rmList").innerHTML = stops.map((s, i) => {
+    const rc = roadCheck[coordKey(s)];
+    const cls = !hasCoord(s) ? "far" : rc ? rc.level : "";
+    return `<div class="rm-item" data-i="${i}">
+      <span class="pin sm ${cls}">${i + 1}</span>
+      <div class="rm-item-main">
+        <div class="rm-item-name" title="${esc(s.location)}">${esc(s.location)}</div>
+        <div class="rm-item-sub"><b>${esc(s.time)}</b>${hasCoord(s) ? roadBadge(rc) : '<span class="badge far">ไม่มีพิกัด</span>'}</div>
+      </div>
+      ${isAdmin ? `<div class="rm-item-act">
+        ${rc && rc.level === "warn" ? `<button class="action-btn edit-btn" data-snap="${i}" title="ย้ายเข้าถนนหลัก">✨</button>` : ""}
+        <button class="action-btn edit-btn" data-edit="${i}">Edit</button></div>` : ""}
+    </div>`;
+  }).join("");
+}
+$("rmList").addEventListener("click", e => {
+  const ed = e.target.closest("[data-edit]"), sn = e.target.closest("[data-snap]"), it = e.target.closest("[data-i]");
+  if (ed) return rmEdit(+ed.dataset.edit);
+  if (sn) return rmSnap(+sn.dataset.snap);
+  if (it) {
+    const i = +it.dataset.i, m = RM.markers[i];
+    highlightItem(i);
+    if (m) { RM.map.setView(m.getLatLng(), Math.max(RM.map.getZoom(), 16)); m.openPopup(); }
+    else if (isAdmin) rmEdit(i);
+  }
+});
+function highlightItem(i) {
+  document.querySelectorAll("#rmList .rm-item").forEach(el => el.classList.toggle("sel", +el.dataset.i === i));
+  document.querySelector(`#rmList .rm-item[data-i="${i}"]`)?.scrollIntoView({ block:"nearest", behavior:"smooth" });
+}
+window.rmEdit = i => { RM.map.closePopup(); openModal("edit", i, { lineId:RM.line, shift:RM.shift }); };
+window.rmSnap = i => {
+  const s = getStops(RM.line, RM.shift)[i], rc = s && roadCheck[coordKey(s)];
+  if (!rc || rc.lat == null) return;
+  RM.map.closePopup();
+  moveStop(RM.line, RM.shift, i, rc.lat, rc.lng, { ...rc, dist:0, level:"ok" });
+  toast(`ย้าย “${s.location}” เข้า ${rc.road || "ถนนหลัก"} แล้ว`, "ok");
+};
+
+async function drawRoute(pts, stops) {
+  RM.route.clearLayers();
+  if (pts.length < 2) { setRmStatus(pts.length ? "มีพิกัดเพียง 1 จุด" : ""); return; }
+  const sched = (() => { const t = stops.map(s => toMin(s.time)).filter(x => x != null); return t.length > 1 ? Math.max(...t) - Math.min(...t) : null; })();
+  const straight = note => {
+    L.polyline(pts, { color:"#2563EB", weight:3, opacity:.55, dashArray:"6 6" }).addTo(RM.route);
+    const km = pts.slice(1).reduce((a, p, i) => a + haversineKm(pts[i][0], pts[i][1], p[0], p[1]), 0);
+    setRmStatus(`${note || "เส้นตรงระหว่างจุด"} · รวม ~${km.toFixed(1)} km${sched != null ? ` · ตารางเวลา ${sched} นาที` : ""}`, note ? "warn" : "");
+  };
+  if (!$("rmRoad").checked) return straight();
+
+  const key = pts.map(p => `${p[1].toFixed(5)},${p[0].toFixed(5)}`).join(";");
+  RM.routeKey = key;
+  const draw = route => {
+    if (RM.routeKey !== key) return;
+    RM.route.clearLayers();
+    L.geoJSON(route.geometry, { style:{ color:"#2563EB", weight:5, opacity:.8 } }).addTo(RM.route);
+    const min = Math.round(route.duration / 60);
+    const warn = sched != null && sched + 5 < min;
+    setRmStatus(`เส้นทางตามถนน ${(route.distance / 1000).toFixed(1)} km · ขับจริง ~${min} นาที` +
+      (sched != null ? ` · ตารางเวลา ${sched} นาที${warn ? " ⚠️ เวลาในตารางน้อยกว่าเวลาขับจริง — เช็คลำดับ/พิกัด" : ""}` : ""), warn ? "warn" : "ok");
+  };
+  if (RM.cache[key]) return draw(RM.cache[key]);
+
+  setRmStatus("กำลังคำนวณเส้นทางตามถนน…");
+  RM.routeCtrl?.abort();
+  RM.routeCtrl = new AbortController();
+  try {
+    const r = await fetch(`${OSRM_URL}/route/v1/driving/${key}?overview=full&geometries=geojson`, { signal:RM.routeCtrl.signal });
+    const j = await r.json();
+    if (j.code !== "Ok") throw new Error(j.code);
+    RM.cache[key] = j.routes[0];
+    draw(j.routes[0]);
+  } catch (e) {
+    if (e.name === "AbortError" || RM.routeKey !== key) return;
+    straight("ดึงเส้นทางถนนไม่ได้ แสดงเส้นตรงแทน");
+  }
+}
+
+function setAddMode(on) {
+  RM.addMode = on;
+  $("rmAddBtn").classList.toggle("on", on);
+  $("rmAddBtn").textContent = on ? "✖ ยกเลิกการเพิ่มจุด" : "➕ แตะแผนที่เพื่อเพิ่มจุด";
+  $("routeMap").classList.toggle("adding", on);
+  if (on) setRmStatus("แตะตำแหน่งบนแผนที่เพื่อวางจุดใหม่");
+}
+$("rmAddBtn").onclick = () => {
+  if (getStops(RM.line, RM.shift).length >= MAX_STOPS) return toast(`สูงสุด ${MAX_STOPS} จุดต่อรอบ`, "warn");
+  setAddMode(!RM.addMode);
+};
+
+$("rmCheckBtn").onclick = async () => {
+  const btn = $("rmCheckBtn"); btn.disabled = true;
+  setRmStatus("กำลังตรวจระยะถึงถนนหลัก…");
+  try {
+    const n = await checkStopsAgainstRoads(getStops(RM.line, RM.shift));
+    renderRouteMap(false);
+    const lv = getStops(RM.line, RM.shift).map(s => roadCheck[coordKey(s)]?.level);
+    const c = k => lv.filter(x => x === k).length;
+    setRmStatus(`ตรวจ ${n} จุด: ✅ ${c("ok")} ใกล้ถนนหลัก · ⚠️ ${c("warn")} Snap ได้ · ⛔ ${c("far")} ต้องปักหมุดใหม่`, c("far") ? "warn" : "ok");
+  } catch (e) { setRmStatus("ตรวจไม่สำเร็จ (Overpass ไม่ตอบ) — ลองใหม่อีกครั้งในอีกสักครู่", "err"); }
+  btn.disabled = false;
+};
+
+$("rmSnapAllBtn").onclick = () => {
+  const stops = getStops(RM.line, RM.shift);
+  const idx = stops.map((s, i) => roadCheck[coordKey(s)]?.level === "warn" ? i : -1).filter(i => i >= 0);
+  if (!idx.length || !confirm(`ย้าย ${idx.length} จุด (ห่าง ${ROAD_OK_M}–${ROAD_WARN_M} m) เข้าถนนหลักที่ใกล้ที่สุด?\nจุดที่ห่างเกิน ${ROAD_WARN_M} m จะไม่ถูกย้าย`)) return;
+  idx.forEach(i => {
+    const s = stops[i], rc = roadCheck[coordKey(s)];
+    s.lat = rc.lat.toFixed(6); s.lng = rc.lng.toFixed(6);
+    roadCheck[coordKey(s)] = { ...rc, dist:0, level:"ok" };
+  });
+  saveSchedule(); renderRouteMap(false); renderScheduleData();
+  toast(`ย้ายแล้ว ${idx.length} จุด`, "ok");
+};
+
+$("rmCheckAllBtn").onclick = async () => {
+  const btn = $("rmCheckAllBtn"); btn.disabled = true;
+  const card = $("allLinesCard"); card.style.display = "";
+  const body = $("allLinesBody"); body.innerHTML = "";
+  const lines = allLines();
+  for (let k = 0; k < lines.length; k++) {
+    const l = lines[k];
+    setRmStatus(`กำลังตรวจทุกสาย ${k + 1}/${lines.length}: ${l.name}`);
+    const stops = SHIFTS.flatMap(s => getStops(l.id, s.id));
+    try { await checkStopsAgainstRoads(stops); }
+    catch (e) { await new Promise(r => setTimeout(r, 3000)); try { await checkStopsAgainstRoads(stops); } catch (e2) {} }
+    SHIFTS.forEach(sh => {
+      const st = getStops(l.id, sh.id); if (!st.length) return;
+      const lv = st.map(s => hasCoord(s) ? roadCheck[coordKey(s)]?.level || "?" : "none");
+      const c = x => lv.filter(v => v === x).length;
+      body.insertAdjacentHTML("beforeend", `<tr style="cursor:pointer" data-l="${esc(l.id)}" data-s="${sh.id}">
+        <td><b>${esc(l.name)}</b> <span class="card-note">${esc(l.zone.name)}</span></td><td>${sh.th}</td><td>${st.length}</td>
+        <td>${c("none") ? `<span class="badge far">${c("none")}</span>` : "0"}</td>
+        <td><span class="badge ok">${c("ok")}</span></td><td><span class="badge warn">${c("warn")}</span></td>
+        <td><span class="badge far">${c("far")}</span></td></tr>`);
+    });
+    await new Promise(r => setTimeout(r, 1200));   // be polite to Overpass
+  }
+  setRmStatus("ตรวจครบทุกสายแล้ว — คลิกแถวในตารางเพื่อเปิดสายนั้น", "ok");
+  renderRouteMap(false);
+  btn.disabled = false;
+};
+$("allLinesBody").addEventListener("click", e => {
+  const tr = e.target.closest("tr[data-l]"); if (!tr) return;
+  RM.line = tr.dataset.l; RM.shift = tr.dataset.s; RM.zone = getLineInfo(RM.line).zone.id;
+  syncRmSelectors(); renderRouteMap(true);
+  $("routeMap").scrollIntoView({ behavior:"smooth", block:"center" });
+});
+
+/* =====================================================================
+   DATA QUALITY
+   ===================================================================== */
+function qualityIssues(lineId, shift) {
+  const st = getStops(lineId, shift), out = [];
+  const add = (i, level, html) => out.push({ i, level, html });
+  st.forEach((s, i) => {
+    if (!/^\d{2}:\d{2}$/.test(s.time || "")) add(i, "far", `<b>${esc(s.location)}</b> — รูปแบบเวลาไม่ถูกต้อง “${esc(s.time)}”`);
+    if (!hasCoord(s)) add(i, "far", `<b>${esc(s.location)}</b> — ยังไม่มีพิกัดจริง`);
+  });
+  for (let i = 0; i < st.length - 1; i++) {
+    const a = st[i], b = st[i + 1], ta = toMin(a.time), tb = toMin(b.time);
+    if (ta == null || tb == null) continue;
+    const gap = tb - ta;
+    const m = /^(\d{2}):0(\d)$/.exec(a.time);
+    if (i === 0 && gap >= 8 && m && st.length > 2) {
+      add(i, "warn", `<b>${esc(a.location)}</b> ${esc(a.time)} ห่างจุดถัดไป ${gap} นาที — อาจพิมพ์ผิดจาก <b>${m[1]}:${m[2]}0</b>?`);
+    }
+    if (hasCoord(a) && hasCoord(b)) {
+      const km = haversineKm(+a.lat, +a.lng, +b.lat, +b.lng);
+      if ((gap <= 0 && km > 0.3) || (gap > 0 && km / (gap / 60) > MAX_BUS_KMH))
+        add(i + 1, "warn", `<b>${esc(a.location)}</b> → <b>${esc(b.location)}</b>: ห่าง ${km.toFixed(1)} km แต่ใช้เวลา ${gap} นาที — พิกัดหรือเวลาน่าจะผิด`);
+    }
+  }
+  // same name, far apart, anywhere in the system
+  st.forEach((s, i) => {
+    if (!hasCoord(s)) return;
+    for (const l of allLines()) for (const sh of SHIFTS) for (const o of getStops(l.id, sh.id)) {
+      if (o === s || o.location.trim() !== s.location.trim() || !hasCoord(o)) continue;
+      const km = haversineKm(+s.lat, +s.lng, +o.lat, +o.lng);
+      if (km > 0.3) { add(i, "warn", `<b>${esc(s.location)}</b> — ชื่อซ้ำกับสาย ${esc(l.name)} แต่พิกัดห่างกัน ${km.toFixed(1)} km`); return; }
+    }
+  });
+  return out;
+}
+function renderQuality() {
+  if (!RM.line) return;
+  const q = qualityIssues(RM.line, RM.shift);
+  $("rmQuality").innerHTML = q.length
+    ? q.map(x => `<div class="q-item"><span class="badge ${x.level}">#${x.i + 1}</span><div class="q-txt">${x.html}</div>
+        <button class="action-btn edit-btn" onclick="rmEdit(${x.i})">Edit</button></div>`).join("")
+    : `<div class="empty">✅ ไม่พบปัญหาในสาย/รอบนี้</div>`;
+}
+
+/* =====================================================================
+   STOP CRUD (shared by schedule + route map)
+   ===================================================================== */
+// When a stop is moved, apply the same pin to that stop name in the line's other shifts
+function syncSameStopOtherShifts(lineId, changed) {
+  if (!changed) return;
+  SHIFTS.forEach(sh => getStops(lineId, sh.id).forEach(o => {
+    if (o !== changed && o.location.trim() === changed.location.trim()) { o.lat = changed.lat; o.lng = changed.lng; }
+  }));
+}
+
+function moveStop(lineId, shift, i, lat, lng, rc) {
+  const s = getStops(lineId, shift)[i]; if (!s) return;
+  s.lat = (+lat).toFixed(6); s.lng = (+lng).toFixed(6);
+  if (rc) roadCheck[coordKey(s)] = rc;
+  if (confirmSyncShifts(lineId, s)) syncSameStopOtherShifts(lineId, s);
+  saveSchedule(); renderRouteMap(false); renderScheduleData();
+}
+function confirmSyncShifts(lineId, s) {
+  const n = SHIFTS.reduce((a, sh) => a + getStops(lineId, sh.id).filter(o => o !== s && o.location.trim() === s.location.trim()).length, 0);
+  return n > 0 && confirm(`จุด “${s.location}” มีในรอบอื่นอีก ${n} รอบ — อัปเดตพิกัดให้ด้วยไหม?`);
+}
+
+window.deleteStop = function (lineId, shift, i) {
+  const arr = getStops(lineId, shift), s = arr[i];
+  if (!s || !confirm(`ลบจุด “${s.location}” (${s.time})?`)) return;
+  arr.splice(i, 1); sortStops(arr); saveSchedule();
+  if (RM.map) RM.map.closePopup();
+  renderScheduleData(); renderRouteMap(false);
+};
+
+/* ---------- Modal ---------- */
+let modalCtx = null, editMap = null, editMarker = null;
+
+function openModal(mode, index = null, ctx = {}) {
+  const lineId = ctx.lineId || currentLine, shift = ctx.shift || currentShift;
+  const arr = getStops(lineId, shift);
+  if (mode === "add" && arr.length >= MAX_STOPS) return toast(`สูงสุด ${MAX_STOPS} จุดต่อรอบ`, "warn");
+  modalCtx = { mode, index, lineId, shift };
+
+  const item = mode === "edit" ? arr[index] : null;
+  const ref = arr.find(hasCoord);
+  let lat = ctx.lat ?? (item && hasCoord(item) ? +item.lat : ref ? +ref.lat : DEFAULT_CENTER[0]);
+  let lng = ctx.lng ?? (item && hasCoord(item) ? +item.lng : ref ? +ref.lng : DEFAULT_CENTER[1]);
+
+  $("modalTitle").textContent = `${mode === "edit" ? "แก้ไขจุด" : "เพิ่มจุดใหม่"} · ${getLineInfo(lineId).name} · ${SHIFT_LABEL[shift]}`;
+  $("modalTime").value = item?.time || (arr.at(-1)?.time || "06:00");
+  $("modalLoc").value = item?.location || "";
+  $("modalImg").value = item?.img || "";
+  $("modalPaste").value = "";
+  setModalPin(lat, lng, (item && hasCoord(item)) || ctx.lat != null ? "" : "⚠️ ยังไม่มีพิกัดจริง — ปักหมุดก่อนบันทึก");
+  $("stopModal").classList.remove("hidden");
+  setTimeout(() => { editMap.invalidateSize(); editMap.setView([lat, lng], 17); $("modalLoc").focus(); }, 120);
+}
+
+function setModalPin(lat, lng, note = "") {
+  $("modalLat").value = (+lat).toFixed(6);
+  $("modalLng").value = (+lng).toFixed(6);
+  if (!editMap) {
+    editMap = L.map("modalMap").setView([lat, lng], 17);
+    tiles(editMap);
+    editMarker = L.marker([lat, lng], { draggable:true }).addTo(editMap);
+    editMarker.on("dragend", () => { const p = editMarker.getLatLng(); setModalPin(p.lat, p.lng); });
+    editMap.on("click", e => setModalPin(e.latlng.lat, e.latlng.lng));
+  } else {
+    editMarker.setLatLng([lat, lng]);
+    if (!editMap.getBounds().contains([lat, lng])) editMap.panTo([lat, lng]);
+  }
+  $("modalPinNote").textContent = note;
+}
+
+["modalLat", "modalLng"].forEach(id => $(id).addEventListener("change", () => {
+  const lat = $("modalLat").value, lng = $("modalLng").value;
+  if (validLatLng(lat, lng)) { setModalPin(+lat, +lng); editMap.setView([+lat, +lng], 17); }
+  else $("modalPinNote").textContent = "⚠️ พิกัดไม่อยู่ในประเทศไทย";
+}));
+$("modalPasteBtn").onclick = () => {
+  const p = parseLatLngInput($("modalPaste").value);
+  if (!p) { $("modalPinNote").textContent = "อ่านพิกัดไม่ได้ — ลิงก์สั้น maps.app.goo.gl ให้เปิดในเบราว์เซอร์ก่อนแล้วคัดลอกลิงก์ยาว หรือคัดลอกตัวเลขพิกัด"; return; }
+  setModalPin(p.lat, p.lng, "✅ ใช้พิกัดจากลิงก์แล้ว"); editMap.setView([p.lat, p.lng], 18);
+};
+$("modalGpsBtn").onclick = () => {
+  if (!navigator.geolocation) return toast("เบราว์เซอร์ไม่รองรับ GPS", "err");
+  $("modalPinNote").textContent = "กำลังอ่าน GPS…";
+  navigator.geolocation.getCurrentPosition(
+    p => { setModalPin(p.coords.latitude, p.coords.longitude, `✅ GPS ความแม่นยำ ±${Math.round(p.coords.accuracy)} m`); editMap.setView([p.coords.latitude, p.coords.longitude], 18); },
+    () => { $("modalPinNote").textContent = "อ่าน GPS ไม่ได้ — เปิด Location แล้วลองใหม่"; },
+    { enableHighAccuracy:true, timeout:15000, maximumAge:0 });
+};
+$("modalSnapBtn").onclick = async () => {
+  const lat = +$("modalLat").value, lng = +$("modalLng").value, btn = $("modalSnapBtn");
+  if (!validLatLng(lat, lng)) return;
+  btn.disabled = true; $("modalPinNote").textContent = "กำลังหาถนนหลักที่ใกล้ที่สุด…";
+  try {
+    const r = await snapPointToRoad(lat, lng);
+    if (r.lat == null || r.dist == null) $("modalPinNote").textContent = `ไม่พบถนนหลักในรัศมี ${ROAD_SEARCH_M} m — ตรวจว่าหมุดอยู่ถูกพื้นที่หรือไม่`;
+    else {
+      setModalPin(r.lat, r.lng, `✅ ย้ายเข้า ${r.road || "ถนนหลัก"} (เดิมห่าง ${Math.round(r.dist)} m) — ลากปรับไปฝั่งถนนที่รถจอดได้`);
+      editMap.setView([r.lat, r.lng], 18);
+      if (r.dist > ROAD_WARN_M) $("modalPinNote").textContent += ` ⚠️ ห่างเกิน ${ROAD_WARN_M} m ตรวจสอบให้แน่ใจว่าเป็นจุดที่ถูกต้อง`;
+    }
+  } catch (e) { $("modalPinNote").textContent = "เชื่อมต่อบริการแผนที่ไม่ได้ ลองใหม่อีกครั้ง"; }
+  btn.disabled = false;
+};
+
+function closeModal() { $("stopModal").classList.add("hidden"); modalCtx = null; }
+$("modalCloseX").onclick = closeModal;
+$("modalCancelBtn").onclick = closeModal;
+document.addEventListener("keydown", e => { if (e.key === "Escape" && modalCtx) closeModal(); if (e.key === "Escape" && RM.addMode) setAddMode(false); });
+
+$("modalSaveBtn").onclick = () => {
+  if (!modalCtx) return;
+  const time = $("modalTime").value.trim(), loc = $("modalLoc").value.trim();
+  const img = $("modalImg").value.trim(), lat = $("modalLat").value.trim(), lng = $("modalLng").value.trim();
+  if (!/^\d{2}:\d{2}$/.test(time)) return toast("กรอกเวลาให้ถูกต้อง (HH:MM)", "err");
+  if (!loc) return toast("กรอกชื่อจุด", "err");
+  if (!validLatLng(lat, lng)) return toast("พิกัดไม่ถูกต้อง", "err");
+  if (img && !safeUrl(img)) return toast("ลิงก์รูปต้องขึ้นต้นด้วย https://", "err");
+
+  const { mode, index, lineId, shift } = modalCtx;
+  const arr = getStops(lineId, shift);
+  let s;
+  if (mode === "add") { s = { time, location:loc, lat:(+lat).toFixed(6), lng:(+lng).toFixed(6), img }; arr.push(s); }
+  else {
+    s = arr[index];
+    const moved = s.lat !== (+lat).toFixed(6) || s.lng !== (+lng).toFixed(6);
+    Object.assign(s, { time, location:loc, lat:(+lat).toFixed(6), lng:(+lng).toFixed(6), img });
+    if (moved && confirmSyncShifts(lineId, s)) syncSameStopOtherShifts(lineId, s);
+  }
+  sortStops(arr);
+  saveSchedule(); closeModal();
+  renderScheduleData(); renderRouteMap(false);
+  if (RM.map) syncRmSelectors();
+  toast("บันทึกแล้ว", "ok");
+};
+
+/* =====================================================================
+   ADMIN
+   ===================================================================== */
+$("adminBtn").onclick = async () => {
+  if (isAdmin) { isAdmin = false; return applyAdmin(); }
+  const pwd = prompt("Admin password:");
+  if (pwd == null) return;
+  let ok = false;
+  try {
+    if (USE_SERVER_AUTH && window.google?.script?.run) {
+      ok = await new Promise(res => google.script.run.withSuccessHandler(res).withFailureHandler(() => res(false)).checkAdmin(pwd));
+    } else ok = (await sha256(pwd)) === ADMIN_PASSWORD_SHA256;
+  } catch (e) { toast("ตรวจรหัสไม่ได้ (ต้องเปิดผ่าน https)", "err"); }
+  if (!ok) return toast("รหัสผ่านไม่ถูกต้อง", "err");
+  isAdmin = true; applyAdmin(); toast("เข้าสู่ Admin mode", "ok");
+};
+
+function applyAdmin() {
+  const b = $("adminBtn");
+  b.textContent = isAdmin ? "✓ Log out admin" : "🔑 Admin Login";
+  b.classList.toggle("logged-in", isAdmin);
+  document.querySelectorAll(".admin-col").forEach(el => el.classList.toggle("hidden", !isAdmin));
+  if (!isAdmin) {
+    setAddMode(false);
+    if (!$("adminAnnounceTab").classList.contains("hidden")) switchMainTab("nearest");
+  }
+  renderScheduleData(); renderContacts();
+  if (RM.map) renderRouteMap(false);
+}
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"); if (!b || !isAdmin) return;
+  ({
+    banner:editBanner, addZone, addLine, renameLine, deleteLine, csvTemplate:downloadCSVTemplate,
+    addStop:() => openModal("add", null, { lineId:currentLine, shift:currentShift }),
+    csvUpload:() => $("csvFileInput").click(), importJson:() => $("jsonFileInput").click(),
+    exportJson, feedbackLink:editFeedbackLink
+  })[b.dataset.act]?.();
+});
+
+function addZone() {
+  const name = prompt("ชื่อโซนใหม่ (เช่น Zone 5):"); if (!name?.trim()) return;
+  const label = prompt("พื้นที่ (เช่น ระยอง):") || "";
+  const id = "z" + Date.now();
+  zonesConfig.push({ id, name:name.trim(), label:label.trim(), lines:[] });
+  Store.set(LS.zones, zonesConfig);
+  currentZone = id; initUI();
+}
+function addLine() {
+  const zone = zonesConfig.find(z => z.id === currentZone); if (!zone) return;
+  const name = prompt(`ชื่อสายใหม่ใน ${zone.name}:`); if (!name?.trim()) return;
+  const id = "l" + Date.now();
+  zone.lines.push({ id, name:name.trim(), defaultCoord:"ติดต่อผู้ประสานงาน" });
+  scheduleData[id] = emptyShifts(); contactsData[id] = "ติดต่อผู้ประสานงาน";
+  saveAll(); currentLine = id; initUI();
+}
+function renameLine() {
+  const l = getLineInfo(currentLine); if (!l.zone) return;
+  const name = prompt("ชื่อสายใหม่:", l.name); if (!name?.trim()) return;
+  l.zone.lines.find(x => x.id === currentLine).name = name.trim();
+  Store.set(LS.zones, zonesConfig); initUI();
+}
+function deleteLine() {
+  const l = getLineInfo(currentLine); if (!l.zone) return;
+  const n = SHIFTS.reduce((a, s) => a + getStops(l.id, s.id).length, 0);
+  if (prompt(`ลบสาย “${l.name}” และ ${n} จุด?\nพิมพ์ DELETE เพื่อยืนยัน`) !== "DELETE") return;
+  l.zone.lines = l.zone.lines.filter(x => x.id !== l.id);
+  delete scheduleData[l.id]; delete contactsData[l.id]; delete announceData[l.id];
+  saveAll(); currentLine = null; initUI(); toast("ลบสายแล้ว", "ok");
+}
+
+function editBanner() {
+  const url = prompt("Banner image URL (เว้นว่างเพื่อลบ):", Store.getStr(LS.banner));
+  if (url == null) return;
+  if (url.trim() && !safeUrl(url)) return toast("URL ต้องขึ้นต้นด้วย https://", "err");
+  Store.setStr(LS.banner, url.trim()); applyBanner();
+}
+function applyBanner() {
+  const url = safeUrl(Store.getStr(LS.banner)), img = $("bannerImage");
+  img.classList.toggle("hidden", !url); if (url) img.src = url;
+}
+function editFeedbackLink() {
+  const url = prompt("Feedback form URL:", Store.getStr(LS.feedback));
+  if (url == null) return;
+  if (url.trim() && !safeUrl(url)) return toast("URL ต้องขึ้นต้นด้วย https://", "err");
+  Store.setStr(LS.feedback, url.trim()); applyFeedback();
+}
+function applyFeedback() {
+  const url = safeUrl(Store.getStr(LS.feedback));
+  if (url) $("feedbackLinkBtn").href = url;
+  $("feedbackContent").classList.toggle("hidden", !url);
+  $("feedbackEmptyMsg").classList.toggle("hidden", !!url);
+}
+
+/* ---------- Announcements ---------- */
+function renderAnnounceEditor() {
+  const btn = (id, label) => `<button class="pick${currentEditAnnounce === id ? " active" : ""}" data-ann="${esc(id)}">${esc(label)}${(announceData[id] || "").trim() ? " •" : ""}</button>`;
+  $("announceLineList").innerHTML = btn("global", "📢 ประกาศรวมทุกสาย (Global)") +
+    zonesConfig.map(z => `<div class="announce-group">${esc(z.name)}</div>` + z.lines.map(l => btn(l.id, "🚌 " + l.name)).join("")).join("");
+  $("announceEditorTitle").textContent = currentEditAnnounce === "global" ? "ประกาศรวมทุกสาย (Global)" : getLineInfo(currentEditAnnounce).name;
+  $("announceEditorText").value = announceData[currentEditAnnounce] || "";
+}
+$("announceLineList").addEventListener("click", e => {
+  const b = e.target.closest("[data-ann]"); if (!b) return;
+  currentEditAnnounce = b.dataset.ann; renderAnnounceEditor();
+});
+$("saveAnnounceBtn").onclick = () => {
+  const t = $("announceEditorText").value.trim();
+  if (t) announceData[currentEditAnnounce] = t; else delete announceData[currentEditAnnounce];
+  Store.set(LS.ann, announceData); updateAnnouncementBanner(); renderAnnounceEditor();
+  toast("บันทึกประกาศแล้ว", "ok");
+};
+
+/* ---------- CSV ---------- */
+function csvCell(v) { v = String(v ?? ""); return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v; }
+function parseCSVLine(line) {
+  const out = []; let cur = "", q = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (q) { if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; }
+    else if (c === '"') q = true; else if (c === ",") { out.push(cur); cur = ""; } else cur += c;
+  }
+  out.push(cur); return out.map(s => s.trim());
+}
+function downloadCSVTemplate() {
+  const rows = getStops(currentLine, currentShift);
+  const body = rows.length ? rows.map(s => [s.time, s.location, s.lat, s.lng, s.img].map(csvCell).join(",")).join("\n")
+                           : "06:00,Example stop,13.123456,100.987654,";
+  downloadBlob("\uFEFFTime,Location Name,Latitude,Longitude,Image URL\n" + body, `BusHub_${getLineInfo(currentLine).name}_${currentShift}.csv`, "text/csv;charset=utf-8");
+}
+$("csvFileInput").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    const lines = ev.target.result.replace(/^\uFEFF/, "").split(/\r?\n/).filter(l => l.trim());
+    const rows = [], errs = [];
+    lines.slice(1).forEach((ln, k) => {
+      const c = parseCSVLine(ln);
+      if (!/^\d{1,2}:\d{2}$/.test(c[0]) || !c[1]) return errs.push(k + 2);
+      rows.push({ time:c[0].padStart(5, "0"), location:c[1], lat:validLatLng(c[2], c[3]) ? (+c[2]).toFixed(6) : "",
+                  lng:validLatLng(c[2], c[3]) ? (+c[3]).toFixed(6) : "", img:safeUrl(c[4]) });
+    });
+    if (!rows.length) return toast("ไม่พบข้อมูลที่ใช้ได้ในไฟล์", "err");
+    if (rows.length > MAX_STOPS) return toast(`ไฟล์มี ${rows.length} แถว เกินสูงสุด ${MAX_STOPS}`, "err");
+    const noPin = rows.filter(x => !x.lat).length;
+    if (confirm(`แทนที่ ${getLineInfo(currentLine).name} · ${SHIFT_LABEL[currentShift]} ด้วย ${rows.length} แถว?` +
+      (errs.length ? `\nข้ามแถวที่ผิด: ${errs.join(", ")}` : "") + (noPin ? `\n${noPin} แถวไม่มีพิกัด` : ""))) {
+      scheduleData[currentLine][currentShift] = sortStops(rows);
+      saveSchedule(); renderScheduleData(); renderRouteMap(false); toast("อัปเดตแล้ว", "ok");
+    }
+  };
+  r.readAsText(f); e.target.value = "";
+};
+
+/* ---------- Backup ---------- */
+function downloadBlob(content, name, type) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([content], { type }));
+  a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function exportJson() {
+  const payload = { app:"CTH BusHub", exportedAt:new Date().toISOString(), zonesConfig, contactsData, scheduleData, announceData,
+                    banner:Store.getStr(LS.banner), feedback:Store.getStr(LS.feedback) };
+  downloadBlob(JSON.stringify(payload, null, 2), `BusHub_backup_${new Date().toISOString().slice(0, 10)}.json`, "application/json");
+}
+$("jsonFileInput").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      if (!Array.isArray(d.zonesConfig) || typeof d.scheduleData !== "object") throw 0;
+      if (!confirm("กู้คืนข้อมูลจากไฟล์นี้? ข้อมูลปัจจุบันจะถูกแทนที่")) return;
+      zonesConfig = d.zonesConfig; contactsData = d.contactsData || {}; scheduleData = d.scheduleData; announceData = d.announceData || {};
+      Store.setStr(LS.banner, d.banner || ""); Store.setStr(LS.feedback, d.feedback || "");
+      saveAll(); location.reload();
+    } catch (err) { toast("ไฟล์ backup ไม่ถูกต้อง", "err"); }
+  };
+  r.readAsText(f); e.target.value = "";
+};
+
+/* =====================================================================
+   BOOT
+   ===================================================================== */
+applyBanner();
+applyFeedback();
+initUI();
+switchMainTab("nearest");
 
 </script>
 </body>
