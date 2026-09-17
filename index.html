@@ -90,6 +90,7 @@ body{
   padding:4px 10px;font-size:11px;font-weight:600;white-space:nowrap;
 }
 .chip.green{background:var(--green-light);color:var(--green-dark)}
+.chip.amber{background:var(--amber-bg);color:var(--amber-text); border:1px solid #FDE68A;}
 
 .scroll-area{flex-grow:1;overflow-y:auto;padding:16px 24px 24px}
 .wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
@@ -242,7 +243,7 @@ tbody tr:hover{background:var(--row-hover)}
   background:linear-gradient(135deg,#3B82F6 0%,#1D4ED8 100%);color:#fff;
   border-radius:var(--radius-btn);padding:8px 16px;font-size:12px;font-weight:600; cursor:pointer; border:none;}
 
-/* ---------- Announcement ---------- */
+/* ---------- Announcement Dashboard ---------- */
 .announce{
   display:flex;align-items:center;gap:12px;flex-shrink:0;
   background:var(--amber-bg);border-top:1px solid #FDE68A;padding:10px 20px;
@@ -250,8 +251,14 @@ tbody tr:hover{background:var(--row-hover)}
 .announce-icon{width:28px;height:28px;border-radius:8px;background:#FEF3C7;
   display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .announce h4{font-size:11px;font-weight:600;color:var(--amber-text);}
-.announce p{font-size:12px;color:#78350F;margin-top:1px}
+.announce p{font-size:13px;color:#78350F;margin-top:2px}
 .announce .spacer{margin-left:auto}
+
+.announce-split { display:flex; gap:20px; }
+.announce-list { flex:1; border-right:1px solid var(--border); padding-right:10px; max-height:400px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; }
+.announce-editor { flex:2; display:flex; flex-direction:column; }
+.announce-textarea { flex-grow:1; width:100%; border:1px solid var(--border); border-radius:8px; padding:12px; font-family:inherit; font-size:13px; resize:vertical; min-height:150px; outline:none; transition: border 0.2s; }
+.announce-textarea:focus { border-color: var(--blue); }
 
 /* ---------- Nearest Stops UI ---------- */
 .nearest-card {
@@ -325,6 +332,8 @@ tbody tr:hover{background:var(--row-hover)}
   .kpi{padding:12px;}
   .kpi-value{font-size:18px;}
   .kpi-value.sm{font-size:14px;}
+  .announce-split { flex-direction: column; }
+  .announce-list { border-right: none; border-bottom: 1px solid var(--border); padding-right:0; padding-bottom:10px; }
 }
 @media (min-width: 601px) {
     .time-pick small { display:block; }
@@ -349,6 +358,9 @@ tbody tr:hover{background:var(--row-hover)}
     <button class="nav-btn" data-tab="contacts" onclick="switchMainTab('contacts', this)"><span class="ico">📞</span> ผู้ประสานงาน</button>
     <button class="nav-btn" data-tab="address" onclick="switchMainTab('address', this)"><span class="ico">🏠</span> แจ้งที่อยู่</button>
     <button class="nav-btn" data-tab="feedback" onclick="switchMainTab('feedback', this)"><span class="ico">💬</span> Feedback</button>
+    
+    <!-- Admin Only Menu -->
+    <button class="nav-btn admin-col hidden" data-tab="adminAnnounceTab" onclick="switchMainTab('adminAnnounceTab', this); renderAnnounceEditor();"><span class="ico">📢</span> จัดการประกาศ</button>
   </nav>
 
   <div class="sidebar-foot">
@@ -459,9 +471,12 @@ tbody tr:hover{background:var(--row-hover)}
         <div id="adminToolbar" class="admin-bar hidden">
           <div class="admin-bar-title">⚙️ Admin Tools<span id="adminCurrentViewLabel"></span></div>
           <button class="btn btn-ghost" onclick="editBanner()">🖼️ Set Banner</button>
+          <!-- Dynamic Admin additions -->
+          <button class="btn btn-positive" onclick="addZone()">+ Add Zone</button>
+          <button class="btn btn-positive" onclick="addLine()">+ Add Line</button>
           <button class="btn btn-positive" onclick="openModal('add')">+ Add Stop</button>
           <button class="btn btn-ghost" onclick="downloadCSVTemplate()">⬇️ Template</button>
-          <button class="btn btn-primary" onclick="triggerFileUpload()">⬆️ Mass Upload CSV</button>
+          <button class="btn btn-primary" onclick="triggerFileUpload()">⬆️ Upload CSV</button>
           <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="handleFileUpload(event)">
         </div>
 
@@ -525,18 +540,43 @@ tbody tr:hover{background:var(--row-hover)}
           <button class="btn btn-ghost admin-col hidden" onclick="editFeedbackLink()" style="margin-top:12px;">⚙️ Edit Feedback Link</button>
         </div>
       </section>
+      
+      <!-- ---------- ADMIN ANNOUNCE DASHBOARD ---------- -->
+      <section id="adminAnnounceTab" class="tab-content hidden admin-col">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">จัดการประกาศ (Manage Announcements)</div>
+            <div class="card-note">ประกาศจะแสดงที่ด้านล่างของหน้าจอตามสายที่พนักงานเลือก</div>
+          </div>
+          
+          <div class="announce-split">
+             <div class="announce-list" id="announceLineList">
+                 <!-- Populated by JS -->
+             </div>
+             
+             <div class="announce-editor">
+                 <h4 id="announceEditorTitle" style="font-size:14px; margin-bottom:8px; color:var(--blue-dark);">ประกาศรวมทุกสาย (Global)</h4>
+                 <p style="font-size:11px; color:var(--text-secondary); margin-bottom:10px;">
+                     หากสายรถมีประกาศเฉพาะของตัวเอง ระบบจะแสดงประกาศเฉพาะสายนั้น หากไม่มีจะแสดงประกาศรวม
+                 </p>
+                 <textarea id="announceEditorText" class="announce-textarea" placeholder="พิมพ์ข้อความประกาศที่นี่... (เว้นว่างไว้เพื่อลบ)"></textarea>
+                 <div style="text-align:right; margin-top:12px;">
+                     <button class="btn btn-primary" onclick="saveAnnouncement()">บันทึกประกาศ (Save)</button>
+                 </div>
+             </div>
+          </div>
+        </div>
+      </section>
 
     </div>
   </div>
 
   <div class="announce">
     <div class="announce-icon">📢</div>
-    <div>
+    <div style="flex-grow:1;">
       <h4>ประกาศ / ANNOUNCEMENTS</h4>
-      <p id="announcementText">ยังไม่มีประกาศใหม่</p>
+      <p id="announcementText" style="font-size:13px; font-weight:500;"></p>
     </div>
-    <div class="spacer"></div>
-    <button class="btn btn-ghost admin-col hidden" onclick="editAnnouncement()">Edit</button>
   </div>
 </main>
 
@@ -586,68 +626,73 @@ tbody tr:hover{background:var(--row-hover)}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
-/* ================= CONFIG ================= */
-const zonesConfig = [
+/* ================= DYNAMIC ZONE CONFIGURATION ================= */
+// Zones and Lines are now dynamic so Admins can add them from the UI
+const defaultZonesConfig = [
   { id:"z1", name:"Zone 1", label:"ชลบุรี / บางแสน", lines:[
-    { id:"l1",  name:"บางแสน", defaultCoord:"ติดต่อผู้ประสานงาน" },
+    { id:"l1", name:"บางแสน", defaultCoord:"ติดต่อผู้ประสานงาน" },
     { id:"l18", name:"รถตู้ชลบุรี", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l21", name:"ออฟฟิตชลบุรี", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l22", name:"ออฟฟิตบางพระ", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l23", name:"ออฟฟิตตลาดหนองมน", defaultCoord:"ติดต่อผู้ประสานงาน" }
+    { id:"l21", name:"ออฟฟิตชลบุรี", defaultCoord:"ติดต่อผู้ประสานงาน" }
   ]},
   { id:"z2", name:"Zone 2", label:"ศรีราชา / แหลมฉบัง", lines:[
-    { id:"l2",  name:"ศรีราชา", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l3",  name:"ผาแดง", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l17", name:"รถตู้เก้ากิโล", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l15", name:"ตู้อ่าว-ซากยายจีน", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l13", name:"เคหะ 1", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l14", name:"เคหะ 3", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l24", name:"ออฟฟิตศรีราชา", defaultCoord:"ติดต่อผู้ประสานงาน" }
+    { id:"l2", name:"ศรีราชา", defaultCoord:"ติดต่อผู้ประสานงาน" },
+    { id:"l13", name:"เคหะ1 หน้ารร.", defaultCoord:"ติดต่อผู้ประสานงาน" },
+    { id:"l15", name:"ตู้อ่าว-ซากกยายจีน", defaultCoord:"ติดต่อผู้ประสานงาน" },
+    { id:"l17", name:"รถตู้เก้ากิโล", defaultCoord:"ติดต่อผู้ประสานงาน" }
   ]},
   { id:"z3", name:"Zone 3", label:"หนองขาม / บึง", lines:[
-    { id:"l7",  name:"เครือ", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l8",  name:"อนามัยหนองขาม", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l9",  name:"บึงทอง", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l10", name:"อุดมกิต", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l16", name:"รถตู้หนองขาม", defaultCoord:"ติดต่อผู้ประสานงาน" },
+    { id:"l7", name:"เครือ", defaultCoord:"ติดต่อผู้ประสานงาน" },
+    { id:"l8", name:"อนามัยหนองขาม", defaultCoord:"ติดต่อผู้ประสานงาน" },
+    { id:"l9", name:"บึงทอง", defaultCoord:"ติดต่อผู้ประสานงาน" },
     { id:"l28", name:"เสริมบึงทอง", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l29", name:"อุดมกิต เสริม", defaultCoord:"ติดต่อผู้ประสานงาน" }
+    { id:"l10", name:"อุดมกิต", defaultCoord:"ติดต่อผู้ประสานงาน" },
+    { id:"l29", name:"อุดมกิต เสริม", defaultCoord:"ติดต่อผู้ประสานงาน" },
+    { id:"l16", name:"รถตู้หนองขาม", defaultCoord:"ติดต่อผู้ประสานงาน" }
   ]},
   { id:"z4", name:"Zone 4", label:"พัทยา / โรงโป๊ะ", lines:[
-    { id:"l4",  name:"พัทยา", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l5",  name:"โรงโป๊ะ", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l6",  name:"ทุ่งกราด", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l11", name:"ซอย 10 ปะชานาถ", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l12", name:"ซอย 10 ต้นยาง", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l19", name:"รถตู้ก้นอ่าว", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l20", name:"รถตู้ต่างชาติ 1/2", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l25", name:"ออฟฟิตพัทยา", defaultCoord:"ติดต่อผู้ประสานงาน" },
+    { id:"l4", name:"พัทยา", defaultCoord:"ติดต่อผู้ประสานงาน" },
+    { id:"l5", name:"โรงโป๊ะ", defaultCoord:"ติดต่อผู้ประสานงาน" },
+    { id:"l6", name:"ทุ่งกราด", defaultCoord:"ติดต่อผู้ประสานงาน" },
     { id:"l26", name:"บ้านนา", defaultCoord:"ติดต่อผู้ประสานงาน" },
-    { id:"l27", name:"ชอย 10หนองเป็ดหาย", defaultCoord:"ติดต่อผู้ประสานงาน" }
+    { id:"l11", name:"ชอย 10 ปะชานาถ", defaultCoord:"ติดต่อผู้ประสานงาน" },
+    { id:"l12", name:"ชอย 10(เสริมต้นยาง)", defaultCoord:"ติดต่อผู้ประสานงาน" },
+    { id:"l27", name:"ชอย 10หนองเป็ดหาย", defaultCoord:"ติดต่อผู้ประสานงาน" },
+    { id:"l19", name:"รถตู้ก้นอ่าว", defaultCoord:"ติดต่อผู้ประสานงาน" }
   ]}
 ];
 
+let zonesConfig = JSON.parse(localStorage.getItem('cthZones_v2'));
+if(!zonesConfig) {
+    zonesConfig = defaultZonesConfig;
+    localStorage.setItem('cthZones_v2', JSON.stringify(zonesConfig));
+}
+
 const SHIFT_LABELS = { t0730:"เช้า 07:30", t1930:"ดึก 19:30", t1700:"กลับ 17:00", t0500:"กลับ 05:00" };
 
-/* ================= INITIALIZE STORAGE ================= */
-let contactsData = JSON.parse(localStorage.getItem('cthContacts_v1'));
+/* ================= INITIALIZE DATA STORAGE ================= */
+let contactsData = JSON.parse(localStorage.getItem('cthContacts_v2'));
 if(!contactsData) {
   contactsData = {};
   zonesConfig.forEach(z => z.lines.forEach(l => { contactsData[l.id] = l.defaultCoord; }));
-  localStorage.setItem('cthContacts_v1', JSON.stringify(contactsData));
+  localStorage.setItem('cthContacts_v2', JSON.stringify(contactsData));
 }
 
-let scheduleData = JSON.parse(localStorage.getItem('cthBusData_v9'));
+let scheduleData = JSON.parse(localStorage.getItem('cthBusData_v10'));
 if(!scheduleData){ 
   scheduleData = buildEmptyData(); 
-  localStorage.setItem('cthBusData_v9', JSON.stringify(scheduleData)); 
+  localStorage.setItem('cthBusData_v10', JSON.stringify(scheduleData)); 
 }
+// Automatically register arrays for any newly added lines from Admin
 zonesConfig.forEach(z => z.lines.forEach(l => {
   if(!scheduleData[l.id]) scheduleData[l.id] = { t0730:[], t1930:[], t1700:[], t0500:[] };
 }));
 
-const savedAnnouncement = localStorage.getItem('cthAnnouncement_v1');
-if(savedAnnouncement) document.getElementById('announcementText').innerText = savedAnnouncement;
+// Announcements logic expanded to per-line
+let announceData = JSON.parse(localStorage.getItem('cthAnnouncements_v2'));
+if(!announceData) {
+    announceData = { global: "สวมหน้ากากอนามัยและรัดเข็มขัดนิรภัยทุกครั้งที่ใช้บริการ" };
+    localStorage.setItem('cthAnnouncements_v2', JSON.stringify(announceData));
+}
 
 const savedBanner = localStorage.getItem('cthBanner_v1');
 if(savedBanner) {
@@ -662,7 +707,8 @@ if(savedFeedback) {
   document.getElementById('feedbackEmptyMsg').classList.add('hidden');
 }
 
-let currentZone = "z1", currentLine = "l1", currentShift = "t0730", isAdmin = false;
+let currentZone = zonesConfig[0].id, currentLine = zonesConfig[0].lines[0].id, currentShift = "t0730", isAdmin = false;
+let currentEditAnnounce = 'global';
 
 /* ================= INIT UI ================= */
 document.getElementById('chipDate').innerText = new Date().toLocaleDateString('en-GB',
@@ -672,15 +718,18 @@ initUI();
 
 function initUI(){
   const zoneContainer = document.getElementById('zoneButtonsContainer');
+  zoneContainer.innerHTML = '';
   zonesConfig.forEach((z,i) => {
     const btn = document.createElement('button');
-    btn.className = 'pick zone-pick' + (i===0 ? ' active' : '');
+    btn.className = 'pick zone-pick' + (z.id === currentZone ? ' active' : '');
     btn.innerHTML = `${z.name}<small style="display:block;font-size:10px;font-weight:500;opacity:.75;margin-top:2px">${z.label}</small>`;
     btn.onclick = () => changeZone(z.id, btn);
     zoneContainer.appendChild(btn);
   });
+  
   renderContacts();
-  changeZone(currentZone, zoneContainer.firstChild);
+  changeZone(currentZone, null);
+  updateAnnouncementBanner();
 }
 
 function renderContacts() {
@@ -692,7 +741,7 @@ function renderContacts() {
     let html = `<div class="zone-head"><span class="chip">${z.name}</span><h3>${z.label}</h3></div><div class="contact-grid">`;
     z.lines.forEach(l => {
       const initial = l.name.trim().charAt(0).toUpperCase();
-      const currentCoord = contactsData[l.id] || "No Data";
+      const currentCoord = contactsData[l.id] || "ติดต่อผู้ประสานงาน";
       html += `<div class="contact-card">
                  <div class="avatar">${initial}</div>
                  <div style="flex-grow:1;">
@@ -715,7 +764,8 @@ const TAB_TITLES = {
   nearest:["ค้นหาจุดขึ้นรถที่ใกล้ที่สุด","Find Nearest Pick-up Point"],
   contacts:["ผู้ประสานงาน","Line Coordinators & Contacts"],
   address:["แจ้งที่อยู่","Update Pick-up / Drop-off"],
-  feedback:["Feedback","Report issues or delays"]
+  feedback:["Feedback","Report issues or delays"],
+  adminAnnounceTab:["จัดการประกาศ","Manage Line Announcements"]
 };
 
 function switchMainTab(tabId, el){
@@ -737,17 +787,32 @@ function changeZone(zoneId, btnElement){
     document.querySelectorAll('.zone-pick').forEach(e => e.classList.remove('active'));
     btnElement.classList.add('active');
   }
+  
   const zone = zonesConfig.find(z => z.id === currentZone);
+  if(!zone) return;
+  
   const box = document.getElementById('lineButtonsContainer');
   box.innerHTML = '';
+  
+  let foundCurrent = false;
   zone.lines.forEach((line,i) => {
+    if(line.id === currentLine) foundCurrent = true;
     const btn = document.createElement('button');
-    btn.className = 'pick line-pick' + (i===0 ? ' active' : '');
-    if(i===0) currentLine = line.id;
+    btn.className = 'pick line-pick';
     btn.innerText = line.name;
     btn.onclick = () => selectLine(line.id, btn);
     box.appendChild(btn);
   });
+  
+  // Default to first line in zone if currentLine not in this zone
+  if(!foundCurrent && zone.lines.length > 0) {
+      currentLine = zone.lines[0].id;
+  }
+  
+  // Highlight active line
+  const activeBtnArr = Array.from(box.children);
+  activeBtnArr.forEach(b => { if(b.innerText === getLineInfo(currentLine).name) b.classList.add('active'); });
+
   renderScheduleData();
 }
 
@@ -775,7 +840,22 @@ function switchView(type){
 /* ================= RENDER SCHEDULE ================= */
 function getLineInfo(id){
   for(const z of zonesConfig){ const l = z.lines.find(x => x.id === id); if(l) return l; }
-  return null;
+  return { name: "Unknown", defaultCoord:"-" };
+}
+
+function updateAnnouncementBanner() {
+    const lineAnnounce = announceData[currentLine];
+    const globalAnnounce = announceData.global;
+    
+    let displayHtml = "";
+    if(lineAnnounce && lineAnnounce.trim() !== "") {
+        displayHtml = `<span class="chip amber" style="margin-right:8px;">${getLineInfo(currentLine).name}</span> ${lineAnnounce}`;
+    } else if (globalAnnounce && globalAnnounce.trim() !== "") {
+        displayHtml = `<span class="chip blue" style="margin-right:8px;">ทั่วไป</span> ${globalAnnounce}`;
+    } else {
+        displayHtml = "ยังไม่มีประกาศใหม่";
+    }
+    document.getElementById('announcementText').innerHTML = displayHtml;
 }
 
 function renderScheduleData(){
@@ -786,7 +866,19 @@ function renderScheduleData(){
   document.getElementById('adminCurrentViewLabel').innerText = ` ${line.name} · ${shiftLabel}`;
   document.getElementById('routeSummary').innerText = `/ ${line.name} · ${shiftLabel}`;
 
-  const data = scheduleData[currentLine][currentShift] || [];
+  let data = scheduleData[currentLine][currentShift] || [];
+  
+  // SORT DATA BY TIME CHRONOLOGICALLY
+  data.sort((a, b) => {
+      if(!a.time) return 1;
+      if(!b.time) return -1;
+      return a.time.localeCompare(b.time);
+  });
+  
+  // Re-number rounds sequentially
+  data.forEach((d, i) => d.round = i + 1);
+  saveDataLocally(); // save sorted order
+
   const tbody = document.getElementById('tableBody');
   const tl = document.getElementById('mapBody');
   tbody.innerHTML = ''; tl.innerHTML = '';
@@ -805,8 +897,8 @@ function renderScheduleData(){
     tl.innerHTML = `<div class="empty"><span class="big">🗓️</span>ยังไม่มีรอบรถในช่วงเวลานี้</div>`;
   } else {
     data.forEach((item,index) => {
-      const latVal = (item.lat && item.lat !== "0") ? item.lat : "13.292846";
-      const lngVal = (item.lng && item.lng !== "0") ? item.lng : "100.943931";
+      const latVal = (item.lat && item.lat !== "0") ? item.lat : "13.2946";
+      const lngVal = (item.lng && item.lng !== "0") ? item.lng : "100.9452";
       const mapUrl = `https://maps.google.com/?q=${latVal},${lngVal}`;
       const imgHtml = item.img ? `<a href="${item.img}" target="_blank" class="img-link">🖼️ รูปสถานที่</a>` : '';
 
@@ -833,6 +925,8 @@ function renderScheduleData(){
       tl.appendChild(row);
     });
   }
+  
+  updateAnnouncementBanner();
   updateAdminVisibility();
 }
 
@@ -988,7 +1082,7 @@ function jumpToSchedule(lineId, shiftId) {
 }
 
 
-/* ================= ADMIN & MODALS ================= */
+/* ================= ADMIN ================= */
 function toggleAdmin(){
   const btn = document.getElementById('adminBtn');
   if(isAdmin){
@@ -1005,23 +1099,97 @@ function updateAdminVisibility(){
   document.getElementById('adminToolbar').classList.toggle('hidden', !isAdmin);
   document.getElementById('kpiDashboard').classList.toggle('hidden', !isAdmin);
   document.querySelectorAll('.admin-col').forEach(el => el.classList.toggle('hidden', !isAdmin));
-}
-
-function editAnnouncement(){
-  const cur = document.getElementById('announcementText').innerText;
-  const txt = prompt("Update Announcement Text:", cur);
-  if(txt !== null && txt.trim() !== ""){
-    document.getElementById('announcementText').innerText = txt;
-    localStorage.setItem('cthAnnouncement_v1', txt);
+  
+  if(!isAdmin && document.getElementById('adminAnnounceTab').classList.contains('hidden') === false) {
+      switchMainTab('nearest', document.querySelector('.nav-btn[data-tab="nearest"]'));
   }
 }
+
+function addZone() {
+    const zoneName = prompt("Enter new Zone Name (e.g. Zone 5):");
+    if(!zoneName) return;
+    const label = prompt("Enter Zone Area Label (e.g. ระยอง):");
+    const newId = "z" + (Date.now());
+    zonesConfig.push({ id: newId, name: zoneName, label: label||"", lines: [] });
+    localStorage.setItem('cthZones_v2', JSON.stringify(zonesConfig));
+    initUI();
+}
+
+function addLine() {
+    const lineName = prompt("Enter new Line Name:");
+    if(!lineName) return;
+    const newId = "l" + (Date.now()); 
+    const zone = zonesConfig.find(z => z.id === currentZone);
+    zone.lines.push({ id: newId, name: lineName, defaultCoord: "ติดต่อผู้ประสานงาน" });
+    localStorage.setItem('cthZones_v2', JSON.stringify(zonesConfig));
+    
+    scheduleData[newId] = { t0730:[], t1930:[], t1700:[], t0500:[] };
+    saveDataLocally();
+    
+    contactsData[newId] = "ติดต่อผู้ประสานงาน";
+    localStorage.setItem('cthContacts_v2', JSON.stringify(contactsData));
+
+    initUI();
+    changeZone(currentZone, null); 
+}
+
+/* ================= ADMIN ANNOUNCEMENT DASHBOARD ================= */
+function renderAnnounceEditor() {
+    const list = document.getElementById('announceLineList');
+    list.innerHTML = '';
+    
+    const globalBtn = document.createElement('button');
+    globalBtn.className = 'pick line-pick' + (currentEditAnnounce === 'global' ? ' active' : '');
+    globalBtn.style.width = '100%'; globalBtn.style.textAlign = 'left'; globalBtn.style.marginBottom = '10px';
+    globalBtn.innerText = "📢 ประกาศรวมทุกสาย (Global)";
+    globalBtn.onclick = () => loadAnnounceIntoEditor('global', globalBtn, "ประกาศรวมทุกสาย (Global)");
+    list.appendChild(globalBtn);
+
+    zonesConfig.forEach(z => {
+        const h = document.createElement('div');
+        h.style.fontWeight = 'bold'; h.style.fontSize = '11px'; h.style.marginTop = '10px'; h.style.marginBottom = '5px'; h.style.color = 'var(--text-secondary)';
+        h.innerText = z.name;
+        list.appendChild(h);
+        z.lines.forEach(l => {
+            const btn = document.createElement('button');
+            btn.className = 'pick line-pick' + (currentEditAnnounce === l.id ? ' active' : '');
+            btn.style.width = '100%'; btn.style.textAlign = 'left'; btn.style.marginBottom = '4px';
+            btn.innerText = "🚌 " + l.name;
+            btn.onclick = () => loadAnnounceIntoEditor(l.id, btn, l.name);
+            list.appendChild(btn);
+        });
+    });
+    
+    loadAnnounceIntoEditor(currentEditAnnounce, null, currentEditAnnounce === 'global' ? "ประกาศรวมทุกสาย (Global)" : getLineInfo(currentEditAnnounce).name);
+}
+
+function loadAnnounceIntoEditor(id, btnObj, title) {
+    currentEditAnnounce = id;
+    if(btnObj) {
+        document.querySelectorAll('#announceLineList .pick').forEach(e=>e.classList.remove('active'));
+        btnObj.classList.add('active');
+    }
+    document.getElementById('announceEditorTitle').innerText = title;
+    document.getElementById('announceEditorText').value = announceData[id] || "";
+}
+
+function saveAnnouncement() {
+    const text = document.getElementById('announceEditorText').value.trim();
+    announceData[currentEditAnnounce] = text;
+    localStorage.setItem('cthAnnouncements_v2', JSON.stringify(announceData));
+    
+    updateAnnouncementBanner(); // Refresh the live banner at the bottom immediately
+    alert("บันทึกประกาศสำเร็จ (Saved!)");
+}
+
+/* ================= UTILS & MODALS ================= */
 
 function editContact(lineId){
   const current = contactsData[lineId];
   const newName = prompt("Edit Coordinator (Name & Phone):", current);
   if(newName !== null && newName.trim() !== "") {
     contactsData[lineId] = newName.trim();
-    localStorage.setItem('cthContacts_v1', JSON.stringify(contactsData));
+    localStorage.setItem('cthContacts_v2', JSON.stringify(contactsData));
     document.getElementById('contact_lbl_' + lineId).innerText = "👤 " + newName.trim();
     if(currentLine === lineId) renderScheduleData();
   }
@@ -1054,14 +1222,14 @@ function editFeedbackLink() {
   }
 }
 
-function saveDataLocally(){ localStorage.setItem('cthBusData_v9', JSON.stringify(scheduleData)); }
+function saveDataLocally(){ localStorage.setItem('cthBusData_v10', JSON.stringify(scheduleData)); }
 
 let editMap = null;
 let editMarker = null;
 
 function initLeafletMap(lat, lng) {
     if (!editMap) {
-        editMap = L.map('modalMap').setView([lat, lng], 13);
+        editMap = L.map('modalMap').setView([lat, lng], 14);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(editMap);
         editMarker = L.marker([lat, lng], {draggable: true}).addTo(editMap);
         editMarker.on('dragend', function (e) {
@@ -1070,7 +1238,7 @@ function initLeafletMap(lat, lng) {
             document.getElementById('modalLng').value = pos.lng.toFixed(6);
         });
     } else {
-        editMap.setView([lat, lng], 13);
+        editMap.setView([lat, lng], 14);
         editMarker.setLatLng([lat, lng]);
     }
     setTimeout(() => { editMap.invalidateSize(); }, 200);
@@ -1081,7 +1249,15 @@ function openModal(mode, index = null) {
   document.getElementById('modalMode').value = mode;
   document.getElementById('modalIndex').value = index !== null ? index : '';
 
-  let t = "06:00", l = "", img = "", lat = "13.292846", lng = "100.943931";
+  // Calculate default regional coordinate for new stops based on current line data
+  let lat = "13.2946", lng = "100.9452"; 
+  const currentData = scheduleData[currentLine][currentShift];
+  if(currentData && currentData.length > 0) {
+      lat = currentData[0].lat !== "0" ? currentData[0].lat : lat;
+      lng = currentData[0].lng !== "0" ? currentData[0].lng : lng;
+  }
+
+  let t = "06:00", l = "", img = "";
 
   if (mode === 'edit') {
       document.getElementById('modalTitle').innerText = "Edit Stop";
@@ -1142,28 +1318,28 @@ function buildEmptyData(){
   zonesConfig.forEach(z => z.lines.forEach(l => { data[l.id] = { t0730:[], t1930:[], t1700:[], t0500:[] }; }));
   
   const rawRoutesMapping = {
-   "l1": "แยกบางแสน|05:50|||,ตลาดหนองมน (สะพานลอย)|05:53|||,ศาลารอรถแยกวัดตาลล้อม|05:55|||,แยกวัดท้ายดอน|05:58|||,แยกเหมือง|06:00|18:00||,หน้าสถานีตำรวจทางหลวง|06:04|18:04||,ศาลาคลองน้ำเหม็น|06:08|18:08||,หน้า CPF|06:01|18:01||,ซอยหินเพิง|06:12|18:12||,หน้าโลตัส|06:13|18:13||,สะพานลอยบางพระ|06:14|18:14||,แยกตัดทางรถไฟ (คอเขาบางพระ)|06:16|18:16||,ซอยเรือนทะเล|06:17|18:17||,หน้าหมู่บ้านไทยออยล์|06:18|18:18||",
-   "l2": "ซอยวัดเขาแตงอ่อน|06:02|18:02||,ซอยวัดวังหิน|06:22|18:22||,ซอยจ่าบัน (ตรงข้าม บ. SECOM)|06:23|18:23||,สะพานลอยศรีราชา|06:25|18:25||,ห้างตึกคอมศรีราชา|06:27|18:27||,หน้าทางเข้า ร.พ. สมเด็จฯ|06:29|18:29||,ซอย ส.บุญสร้าง|06:03|18:03||,หน้าหมู่บ้านศรีราชา|06:31|18:31||",
-   "l13": "หอหลังคาแดง|06:25|18:25||,เซเว่นหน้าตึก21|06:26|18:26||,ป้อมตำรวจเคหะ|06:27|18:27||,หน้าโอเค รีสอร์ท|06:29|18:29||,หน้าคอนโด|06:30|18:30||",
-   "l15": "หน้า รร. ซากยายจีน|06:02|18:02||,ซอยหน้าหมู่บ้านแฟมิลี่ปาร์ค|06:22|18:22||,เซเว่นแยกเขาน้ำซับ|06:23|18:23||,ม.เกษตรประตู3|06:24|18:24||",
-   "l17": "หมู่บ้านธนาวิล|06:17|18:17||,หมู่บ้านกรีนวิว 2|06:19|18:19||,หน้าวัดประทานพร|06:21|18:21||,เซเว่นเขาน้ำซับ|06:23|18:23||,หมู่บ้านเปรมสุข2|06:02|18:02||,หอจุ๊บแจง|06:21|18:21||",
-   "l7": "หน้าโรงไฟฟ้าไร่ 1|06:13|18:13||,หน้าร้านเครื่องใช้ไฟฟ้า(ตรงข้ามตลาดไร่1)|06:15|18:15||,หน้าตลาดพระพรหม|06:17|18:17||,หน้าธนาคารกรุงเทพ|06:19|18:19||,หน้าไลอ้อน|06:02|18:02||",
-   "l8": "ศาลารอรถ ข้างเต้นท์รถ JK ออโต้|06:01|18:01||,ตรงข้ามร้านอาหารครัวริมบึง|06:01|18:01||,ร้านทำป้าย จิตรกรโฆษณา|06:11|18:11||,โรงเรียนเสริมสวยคุณอ้อม|06:12|18:12||,หอพัก SPK ตรงข้ามตลาดนัด|06:14|18:14||,ตรงข้ามหมู่บ้านโกลเด้นเพลส|06:15|18:15||,หน้าเซเว่น พานทองแท้ 4|06:16|18:16||,ศาลารอรถ หน้าหมู่บ้านพานทองแท้ 1|06:17|18:17||,ร้านขายเครื่องใช้ไฟฟ้า พานทองแท้2|06:18|18:18||,หน้าอู่เอกเจริญยนต์|06:19|18:19||,ร้านไก่ย่างวิเชียรบุรี|06:02|18:02||,หน้าอู่แจ็คเซอร์วิส|06:21|18:21||,ศารลารอรถหน้าอู่รุ่งวัฒนา|06:22|18:22||,หน้าสนามฟุตบอลหญ้าเทียม|06:23|18:23||,ร้านอะไหล่มอเตอร์ไซข้างเต้นท์รถแหลมทอง|06:24|18:24||,ศาลารอรถหน้าร้านวัสดุก่อสร้าง|06:25|18:25||,หน้าหมู่บ้าน เบต้าฮิล|06:26|18:26||,หน้าอู่ซ่อมรถบรรหาญ ซอยขาหมูดงตาล|06:27|18:27||,หน้าคลีนิกทันตกรรม ยิ้มกว้าง|06:28|18:28||",
-   "l9": "หน้าร้านของเล่นเด็กเฟื่องฟ้า|06:00|18:00||,หน้าตลาดวรกิจ|06:02|18:02||,หน้าร้านผ้าม่าน|06:04|18:04||,ปั้มน้ำมัน ปตท.บึงทอง|06:06|18:06||,ปั้มเชลล์บึงทอง|06:08|18:08||",
-   "l28": "หน้า ม.แหลมบังกรีนวิว|06:01|18:01||,เซเว่นตลาดเมืองทอง|06:11|18:11||,หน้า ม.จิตอารีย์|06:12|18:12||,จุกกะเฌอค้าไม้|06:14|18:14||,ซอยสิบแสน|06:16|18:16||,เซเว่นจุกกะเฌอ|06:18|18:18||,หน้าหมู่บ้านธนาวัลย์|06:19|18:19||,ปั้ม ปตท.หลังสนามบิน|06:02|18:02||",
-   "l10": "หน้าเซเว่นแยกหนองคล้าใหม่|06:15|18:15||,หน้าตลาดอุดมกิจ|06:02|18:02||",
-   "l29": "หน้าก๋วยเตี๋ยวไก่มะระ|06:02|18:02||,หน้าร้านผ้าม่าน|06:21|18:21||,ตรงข้ามเซเว่น ม.เทพธาริน|06:23|18:23||,หน้าTop|06:24|18:24||,หน้าตลาดสดรัตนากร|06:25|18:25||,หน้าทางเข้าหมู่บ้านสหชัย|06:26|18:26||,หอใหม่หน้าตลาดนัดทางรถไฟ|06:27|18:27||,หน้าหอพักก่อนถึงสี่แยกเทคโน|06:28|18:28||,หน้าร้านหมูกระทะ|06:02|18:03||",
-   "l16": "หอพักดีพร้อม|06:08|18:08||,7-11 ซอยนายขาว|06:09|18:09||,จุดสามแยกบายพาส|06:01|18:01||,หอพักอยู่สบาย|06:11|18:11||,ตำนานชลบ่อยาง|06:12|18:12||,ตึกไทย-ญี่ปุ่น|06:13|18:13||,หอพักต่อศักดิ์|06:14|18:14||,ตึกฟ้าขาว|06:15|18:15||",
-   "l4": "ศาลารอรถพัทยาใต้|06:05|18:05||,กรมทางหลวงพัทยาใต้|06:06|18:06||,ซอยเขาน้อย|06:07|18:07||,ศาลาก่อนถึงไฟแดงพัทยากลาง|06:08|18:08||,ปั๊ม บางจาก พัทยากลาง|06:01|18:01||,ซอย สนามกลอฟ์|06:12|18:12||,โรงเรียนพระมหาไถ่|06:14|18:14||,ปั๊ม ปตท.|06:15|18:15||,ไฟแดงพัทยาเหนือ|06:16|18:16||,หน้าวัดหนองใหญ่|06:18|18:18||,หน้าเมืองจำลอง|06:02|18:02||,หน้าสุเหร่าแขก|06:21|18:21||,ปั๊ม บางจาก นาเกลือ|06:24|18:24||,หน้าธนาคารไทยพานิชย์ นาเกลือ|06:25|18:25||,สะพานลอยหน้าโรงเรียนบางละมุง|06:28|18:28||,ไฟแดงโรงไม้ขีด|06:29|18:29||,หน้าศูนย์โตโยต้า|06:03|18:03||,ซอยโรงเลื่อย|06:32|18:32||",
-   "l5": "สะพานลอยจิตพาวัน|06:18|18:33||,แยกกระทิงลาย|06:19|18:34||,หน้า บ.โปรตอน เทรนดิ้ง|06:02|18:18||,สะพานลอยบ้านโรงโป๊ะ|06:21|18:02||,หน้าวัดประชุมคงคา|06:21|18:21||",
-   "l6": "โรงเรียนศรีสุวิทย์|06:22|18:22||,หน้าสถานสงเคราะห์คนชรา|06:23|18:23||,ศาลาวัดบางละมุง|06:25|18:25||,หอลัดดา|06:26|18:26||,หน้าร้านพนัชกรแม็กยางทุ่งกราด|06:26|18:26||,ร้านค้าเปตอง shop|06:27|18:27||",
-   "l26": "สะพานลอยโรงเรียนทุ่งกราด|06:03|18:03||,ใต้สะพาน|06:31|18:31||,โรงงานกระจก|06:32|18:32||,ปากซอยทุ่งรวงทอง|06:33|18:33||,ศาลาต้นมะม่วง|06:34|18:34||,หน้าโรงเรียนวัดบ้านนา|06:35|18:35||,หน้าปั้มคาลเท็กซ์|06:36|18:36||,สะพานลอยฮาร์เบอร์มอร์|06:37|18:37||",
-   "l11": "ศาลารอรถป้อมหนองขาม|06:12|18:12||,หน้าร้าน ว.มินิมาร์ท|06:13|18:13||,หมู่บ้านเฟื่องฟ้า/หอพักสีฟ้า|06:14|18:14||,หน้าวัดต้นมะม่วง|06:15|18:15||,หอพัก400ห้อง|06:17|18:17||,เนินเขาดิน|06:02|18:02||,หอพักเขาดิน|06:21|18:21||,วัดปชานาถ|06:23|18:23||,หน้าร้านป้าซิ่ว|06:24|18:24||,แยกดาวเทียม|06:25|18:28||,สะพานลอยมิชลิน|06:31|18:31||,ซอย เพ็ญรุ่ง|06:32|18:32||,สะพานลอยสี่มุมเมือง|06:33|18:33||,ซอย หนองเป็ดหาย|06:34|18:34||",
-   "l12": "ชอย 10 ต้นยาง|06:02|18:02||,ซอยเซียสวัสดิ์ (หน้าคุณตา อพาร์ทเม้นท์)|06:21|18:21||,หน้าบริษัท STC (ติดโกดังค้าส่งชลบุรีแสนเจริญ)|06:22|18:22||,แยก 7-11|06:23|18:23||,ถนนหนองแร่|06:25|18:25||",
-   "l27": "ซอยหนองเป็ดหาย|06:27|18:27||,สถานีตำรวจแหลมฉบัง|06:28|18:28||",
-   "l19": "22301 หน้าวัดใหม่|06:20|18:20||,22302 ซอย 12|06:22|18:22||,22303 ซอย 8|06:24|18:24||,22304 ตึกขาว(ซอย6)|06:25|18:25||,22305 แยกโต๊ะสนุ๊ก|06:27|18:27||,22306 แยกวงเดือน|06:29|18:29||,22307 ตลาดบ้านทุ่ง|06:30|18:30||",
-   "l18": "หน้าเฉลิมไทย|05:05|17:05||,เลยสี่แยกบ้านสวน (หน้าศูนย์ภาษา NAVA)|05:52|17:52||,หน้าขนส่ง|05:53|17:53||,หน้าโรงพยาบาล|05:54|17:54||,แยก โรงเรียนชลชาย|05:55|17:55||,ตึกน้ำ|05:56|17:56||,หน้าโลตัส|05:57|17:57||,สะพานลอยห้วยกะปิ|05:58|17:58||,หน้าโรงเรียนห้วยกะปิ|05:59|17:59||,แยกคีรี|06:00|18:00||,หน้าทางเข้าโรงงานตุ๊กตา|06:01|18:01||,แยกอ่างศิลา|06:02|18:02||,หน้าทางเข้าวิทยาลัยสารพัดช่าง|06:04|18:04||,แยกบางแสน||18:05||,ตลาดหนองมน (สะพานลอย)||18:06||,ศาลารอรถแยกวัดตาลล้อม||18:07||,แยกวัดท้ายดอน||18:08||",
-   "l21": "เฉลิมไทยชลบุรี (หน้าวัดจีน)|06:02|17:45||,หน้าวิทยาลัยอาชีวฯ ชลบุรี|06:22|||,หน้าธนาคารธนชาติ (ลุมพินีคอนโดชลบุรี)|06:23|||,สะพานลอย สี่แยกโรงเรียนชลชาย|06:25|||,สะพานลอยหน้าโลตัสชลบุรี|06:26|||,สะพานลอยหน้าเซ็นทรัล-ชลบุรี|06:27|||,แยกคีรี|06:29|||,สะพานลอยหน้าบิ๊กซีอ่างศิลา (โฮมโปร)|06:03|||,หน้าแฮปปี้เวิลด์|06:32|||,หน้าหมู่บ้าน ณิชาดา|06:35|||,ศาลารอรถ เยื้องตรงข้ามร้าน ส:วรกิจ|06:37|||,เวลารับพนักงานกลับ||17:45||"
+   "l1": "แยกบางแสน|05:50||||13.311948|100.947411,ตลาดหนองมน (สะพานลอย)|05:53||||13.291460|100.949898,ศาลารอรถแยกวัดตาลล้อม|05:55||||13.306032|100.957674,แยกวัดท้ายดอน|05:58||||13.303850|100.938893,แยกเหมือง|06:00|18:00|||13.285318|100.945625,หน้าสถานีตำรวจทางหลวง|06:04|18:04|||13.302118|100.960805,ศาลาคลองน้ำเหม็น|06:08|18:08|||13.289628|100.926052,หน้า CPF|06:01|18:01|||13.302473|100.944205,ซอยหินเพิง|06:12|18:12|||13.287839|100.926372,หน้าโลตัส|06:13|18:13|||13.287700|100.947530,สะพานลอยบางพระ|06:14|18:14|||13.306489|100.939287,แยกตัดทางรถไฟ (คอเขาบางพระ)|06:16|18:16|||13.312678|100.944204,ซอยเรือนทะเล|06:17|18:17|||13.297412|100.952049,หน้าหมู่บ้านไทยออยล์|06:18|18:18|||13.297651|100.939648",
+   "l2": "ซอยวัดเขาแตงอ่อน|06:02|18:02|||13.171076|100.945391,ซอยวัดวังหิน|06:22|18:22|||13.161580|100.923316,ซอยจ่าบัน (ตรงข้าม บ. SECOM)|06:23|18:23|||13.158370|100.915367,สะพานลอยศรีราชา|06:25|18:25|||13.157745|100.917705,ห้างตึกคอมศรีราชา|06:27|18:27|||13.148005|100.919166,หน้าทางเข้า ร.พ. สมเด็จฯ|06:29|18:29|||13.166645|100.942197,ซอย ส.บุญสร้าง|06:03|18:03|||13.184199|100.927416,หน้าหมู่บ้านศรีราชา|06:31|18:31|||13.162458|100.947401",
+   "l13": "หอหลังคาแดง|06:25|18:25|||13.108702|100.922363,เซเว่นหน้าตึก21|06:26|18:26|||13.121056|100.932181,ป้อมตำรวจเคหะ|06:27|18:27|||13.126251|100.941216,หน้าโอเค รีสอร์ท|06:29|18:29|||13.122539|100.916379,หน้าคอนโด|06:30|18:30|||13.117598|100.930463",
+   "l15": "หน้า รร. ซากยายจีน|06:02|18:02|||13.110566|100.942879,ซอยหน้าหมู่บ้านแฟมิลี่ปาร์ค|06:22|18:22|||13.110011|100.919388,เซเว่นแยกเขาน้ำซับ|06:23|18:23|||13.101400|100.921676,ม.เกษตรประตู3|06:24|18:24|||13.092591|100.924453",
+   "l17": "หมู่บ้านธนาวิล|06:17|18:17|||13.158568|100.940954,หมู่บ้านกรีนวิว 2|06:19|18:19|||13.157079|100.921499,หน้าวัดประทานพร|06:21|18:21|||13.132797|100.928825,เซเว่นเขาน้ำซับ|06:23|18:23|||13.138724|100.924177,หมู่บ้านเปรมสุข2|06:02|18:02|||13.134708|100.924505,หอจุ๊บแจง|06:21|18:21|||13.144219|100.922340",
+   "l7": "หน้าโรงไฟฟ้าไร่ 1|06:13|18:13|||13.076274|100.990017,หน้าร้านเครื่องใช้ไฟฟ้า(ตรงข้ามตลาดไร่1)|06:15|18:15|||13.075615|100.979773,หน้าตลาดพระพรหม|06:17|18:17|||13.077392|100.984905,หน้าธนาคารกรุงเทพ|06:19|18:19|||13.097615|100.997543,หน้าไลอ้อน|06:02|18:02|||13.076057|101.003587",
+   "l8": "ศาลารอรถ ข้างเต้นท์รถ JK ออโต้|06:01|18:01|||13.093840|100.979461,ตรงข้ามร้านอาหารครัวริมบึง|06:01|18:01|||13.096317|101.001192,ร้านทำป้าย จิตรกรโฆษณา|06:11|18:11|||13.099293|100.975743,โรงเรียนเสริมสวยคุณอ้อม|06:12|18:12|||13.095983|100.981990,หอพัก SPK ตรงข้ามตลาดนัด|06:14|18:14|||13.085187|100.985459,ตรงข้ามหมู่บ้านโกลเด้นเพลส|06:15|18:15|||13.099166|100.984094,หน้าเซเว่น พานทองแท้ 4|06:16|18:16|||13.099354|101.012843,ศาลารอรถ หน้าหมู่บ้านพานทองแท้ 1|06:17|18:17|||13.080820|101.011710,ร้านขายเครื่องใช้ไฟฟ้า พานทองแท้2|06:18|18:18|||13.075990|101.006142,หน้าอู่เอกเจริญยนต์|06:19|18:19|||13.092209|100.986829,ร้านไก่ย่างวิเชียรบุรี|06:02|18:02|||13.082590|100.978867,หน้าอู่แจ็คเซอร์วิส|06:21|18:21|||13.073102|100.998862,ศารลารอรถหน้าอู่รุ่งวัฒนา|06:22|18:22|||13.086954|100.990623,หน้าสนามฟุตบอลหญ้าเทียม|06:23|18:23|||13.095327|100.996931,ร้านอะไหล่มอเตอร์ไซข้างเต้นท์รถแหลมทอง|06:24|18:24|||13.076343|101.012863,ศาลารอรถหน้าร้านวัสดุก่อสร้าง|06:25|18:25|||13.083601|100.997019,หน้าหมู่บ้าน เบต้าฮิล|06:26|18:26|||13.072763|100.980448,หน้าอู่ซ่อมรถบรรหาญ ซอยขาหมูดงตาล|06:27|18:27|||13.100761|100.978860,หน้าคลีนิกทันตกรรม ยิ้มกว้าง|06:28|18:28|||13.085157|100.992229",
+   "l9": "หน้าร้านของเล่นเด็กเฟื่องฟ้า|06:00|18:00|||13.079921|100.981685,หน้าตลาดวรกิจ|06:02|18:02|||13.068425|100.976579,หน้าร้านผ้าม่าน|06:04|18:04|||13.082102|100.994105,ปั้มน้ำมัน ปตท.บึงทอง|06:06|18:06|||13.091352|100.976625,ปั้มเชลล์บึงทอง|06:08|18:08|||13.084840|100.979402",
+   "l28": "หน้า ม.แหลมบังกรีนวิว|06:01|18:01|||13.070038|100.991879,เซเว่นตลาดเมืองทอง|06:11|18:11|||13.089592|101.005276,หน้า ม.จิตอารีย์|06:12|18:12|||13.080675|100.975199,จุกกะเฌอค้าไม้|06:14|18:14|||13.077917|101.000402,ซอยสิบแสน|06:16|18:16|||13.073905|100.985739,เซเว่นจุกกะเฌอ|06:18|18:18|||13.077224|101.001210,หน้าหมู่บ้านธนาวัลย์|06:19|18:19|||13.092685|100.987789,ปั้ม ปตท.หลังสนามบิน|06:02|18:02|||13.101291|100.990844",
+   "l10": "หน้าเซเว่นแยกหนองคล้าใหม่|06:15|18:15|||13.100463|100.997664,หน้าตลาดอุดมกิจ|06:02|18:02|||13.102387|101.009906",
+   "l29": "หน้าก๋วยเตี๋ยวไก่มะระ|06:02|18:02|||13.085435|100.976271,หน้าร้านผ้าม่าน|06:21|18:21|||13.099719|100.974767,ตรงข้ามเซเว่น ม.เทพธาริน|06:23|18:23|||13.081076|100.977278,หน้าTop|06:24|18:24|||13.089211|100.979791,หน้าตลาดสดรัตนากร|06:25|18:25|||13.091348|101.012796,หน้าทางเข้าหมู่บ้านสหชัย|06:26|18:26|||13.102033|100.993197,หอใหม่หน้าตลาดนัดทางรถไฟ|06:27|18:27|||13.089581|101.008175,หน้าหอพักก่อนถึงสี่แยกเทคโน|06:28|18:28|||13.074631|100.999841,หน้าร้านหมูกระทะ|06:02|18:03|||13.081517|100.995168",
+   "l16": "หอพักดีพร้อม|06:08|18:08|||13.083850|100.997300,7-11 ซอยนายขาว|06:09|18:09|||13.070404|101.007102,จุดสามแยกบายพาส|06:01|18:01|||13.086571|100.990090,หอพักอยู่สบาย|06:11|18:11|||13.096889|100.985425,ตำนานชลบ่อยาง|06:12|18:12|||13.106171|100.989400,ตึกไทย-ญี่ปุ่น|06:13|18:13|||13.079325|100.997514,หอพักต่อศักดิ์|06:14|18:14|||13.090968|100.989755,ตึกฟ้าขาว|06:15|18:15|||13.090698|100.996608",
+   "l4": "ศาลารอรถพัทยาใต้|06:05|18:05|||12.935653|100.864545,กรมทางหลวงพัทยาใต้|06:06|18:06|||12.936625|100.874748,ซอยเขาน้อย|06:07|18:07|||12.907146|100.863392,ศาลาก่อนถึงไฟแดงพัทยากลาง|06:08|18:08|||12.938387|100.880266,ปั๊ม บางจาก พัทยากลาง|06:01|18:01|||12.921232|100.895341,ซอย สนามกลอฟ์|06:12|18:12|||12.939344|100.882959,โรงเรียนพระมหาไถ่|06:14|18:14|||12.932918|100.873867,ปั๊ม ปตท.|06:15|18:15|||12.917647|100.886020,ไฟแดงพัทยาเหนือ|06:16|18:16|||12.940238|100.870725,หน้าวัดหนองใหญ่|06:18|18:18|||12.911602|100.898802,หน้าเมืองจำลอง|06:02|18:02|||12.906218|100.871396,หน้าสุเหร่าแขก|06:21|18:21|||12.929212|100.880852,ปั๊ม บางจาก นาเกลือ|06:24|18:24|||12.920680|100.862706,หน้าธนาคารไทยพานิชย์ นาเกลือ|06:25|18:25|||12.904447|100.886789,สะพานลอยหน้าโรงเรียนบางละมุง|06:28|18:28|||12.923690|100.880565,ไฟแดงโรงไม้ขีด|06:29|18:29|||12.918540|100.885665,หน้าศูนย์โตโยต้า|06:03|18:03|||12.943873|100.871874,ซอยโรงเลื่อย|06:32|18:32|||12.905550|100.897509",
+   "l5": "สะพานลอยจิตพาวัน|06:18|18:33|||13.017447|100.944405,แยกกระทิงลาย|06:19|18:34|||13.003693|100.911863,หน้า บ.โปรตอน เทรนดิ้ง|06:02|18:18|||13.016300|100.923985,สะพานลอยบ้านโรงโป๊ะ|06:21|18:02|||13.009175|100.936459,หน้าวัดประชุมคงคา|06:21|18:21|||13.010245|100.922115",
+   "l6": "โรงเรียนศรีสุวิทย์|06:22|18:22|||13.018942|100.907428,หน้าสถานสงเคราะห์คนชรา|06:23|18:23|||13.041707|100.934469,ศาลาวัดบางละมุง|06:25|18:25|||13.010101|100.928898,หอลัดดา|06:26|18:26|||13.037465|100.914290,หน้าร้านพนัชกรแม็กยางทุ่งกราด|06:26|18:26|||13.029278|100.943657,ร้านค้าเปตอง shop|06:27|18:27|||13.028360|100.913286",
+   "l26": "สะพานลอยโรงเรียนทุ่งกราด|06:03|18:03|||13.013157|100.933939,ใต้สะพาน|06:31|18:31|||13.004771|100.929775,โรงงานกระจก|06:32|18:32|||13.004813|100.924074,ปากซอยทุ่งรวงทอง|06:33|18:33|||13.019248|100.938887,ศาลาต้นมะม่วง|06:34|18:34|||13.033336|100.938136,หน้าโรงเรียนวัดบ้านนา|06:35|18:35|||13.004527|100.911599,หน้าปั้มคาลเท็กซ์|06:36|18:36|||13.042671|100.935558,สะพานลอยฮาร์เบอร์มอร์|06:37|18:37|||13.028931|100.939710",
+   "l11": "ศาลารอรถป้อมหนองขาม|06:12|18:12|||13.041828|100.945145,หน้าร้าน ว.มินิมาร์ท|06:13|18:13|||13.052881|100.950586,หมู่บ้านเฟื่องฟ้า/หอพักสีฟ้า|06:14|18:14|||13.050296|100.953096,หน้าวัดต้นมะม่วง|06:15|18:15|||13.049698|100.930677,หอพัก400ห้อง|06:17|18:17|||13.039256|100.958816,เนินเขาดิน|06:02|18:02|||13.068986|100.960025,หอพักเขาดิน|06:21|18:21|||13.056833|100.961274,วัดปชานาถ|06:23|18:23|||13.038088|100.940390,หน้าร้านป้าซิ่ว|06:24|18:24|||13.050855|100.939765,แยกดาวเทียม|06:25|18:28|||13.035292|100.930753,สะพานลอยมิชลิน|06:31|18:31|||13.034614|100.966041,ซอย เพ็ญรุ่ง|06:32|18:32|||13.038918|100.944443,สะพานลอยสี่มุมเมือง|06:33|18:33|||13.059343|100.946986,ซอย หนองเป็ดหาย|06:34|18:34|||13.039571|100.958608",
+   "l12": "ชอย 10 ต้นยาง|06:02|18:02|||13.044180|100.932831,ซอยเซียสวัสดิ์ (หน้าคุณตา อพาร์ทเม้นท์)|06:21|18:21|||13.058995|100.959252,หน้าบริษัท STC (ติดโกดังค้าส่งชลบุรีแสนเจริญ)|06:22|18:22|||13.069148|100.947228,แยก 7-11|06:23|18:23|||13.065905|100.953363,ถนนหนองแร่|06:25|18:25|||13.046132|100.936794",
+   "l27": "ซอยหนองเป็ดหาย|06:27|18:27|||13.036701|100.947751,สถานีตำรวจแหลมฉบัง|06:28|18:28|||13.051873|100.933628",
+   "l19": "22301 หน้าวัดใหม่|06:20|18:20|||12.998242|100.931048,22302 ซอย 12|06:22|18:22|||12.987496|100.935237,22303 ซอย 8|06:24|18:24|||12.999129|100.899750,22304 ตึกขาว(ซอย6)|06:25|18:25|||13.016220|100.912412,22305 แยกโต๊ะสนุ๊ก|06:27|18:27|||13.001361|100.925230,22306 แยกวงเดือน|06:29|18:29|||12.988914|100.925945,22307 ตลาดบ้านทุ่ง|06:30|18:30|||13.012654|100.910725",
+   "l18": "หน้าเฉลิมไทย|05:05|17:05|||13.363417|100.984893,เลยสี่แยกบ้านสวน (หน้าศูนย์ภาษา NAVA)|05:52|17:52|||13.370926|100.965093,หน้าขนส่ง|05:53|17:53|||13.356542|100.965637,หน้าโรงพยาบาล|05:54|17:54|||13.365818|100.992267,แยก โรงเรียนชลชาย|05:55|17:55|||13.345032|101.002468,ตึกน้ำ|05:56|17:56|||13.354548|101.003879,หน้าโลตัส|05:57|17:57|||13.342781|100.966528,สะพานลอยห้วยกะปิ|05:58|17:58|||13.360752|100.977740,หน้าโรงเรียนห้วยกะปิ|05:59|17:59|||13.365853|100.982151,แยกคีรี|06:00|18:00|||13.344891|100.964847,หน้าทางเข้าโรงงานตุ๊กตา|06:01|18:01|||13.370833|100.973082,แยกอ่างศิลา|06:02|18:02|||13.374650|100.983895,หน้าทางเข้าวิทยาลัยสารพัดช่าง|06:04|18:04|||13.359473|100.989965,แยกบางแสน||18:05|||13.365816|100.987820,ตลาดหนองมน (สะพานลอย)||18:06|||13.364613|100.971005,ศาลารอรถแยกวัดตาลล้อม||18:07|||13.353543|100.970952,แยกวัดท้ายดอน||18:08|||13.342915|100.982263",
+   "l21": "เฉลิมไทยชลบุรี (หน้าวัดจีน)|06:02|17:45|||13.379031|100.997835,หน้าวิทยาลัยอาชีวฯ ชลบุรี|06:22||||13.367818|100.975438,หน้าธนาคารธนชาติ (ลุมพินีคอนโดชลบุรี)|06:23||||13.367643|100.983880,สะพานลอย สี่แยกโรงเรียนชลชาย|06:25||||13.341949|101.002560,สะพานลอยหน้าโลตัสชลบุรี|06:26||||13.349269|100.979090,สะพานลอยหน้าเซ็นทรัล-ชลบุรี|06:27||||13.362448|100.975633,แยกคีรี|06:29||||13.369844|100.987416,สะพานลอยหน้าบิ๊กซีอ่างศิลา (โฮมโปร)|06:03||||13.349977|100.987656,หน้าแฮปปี้เวิลด์|06:32||||13.343914|100.978702,หน้าหมู่บ้าน ณิชาดา|06:35||||13.348647|101.003238,ศาลารอรถ เยื้องตรงข้ามร้าน ส:วรกิจ|06:37||||13.374270|100.979280,เวลารับพนักงานกลับ||17:45|||13.362604|100.974853"
   };
 
   Object.keys(rawRoutesMapping).forEach(lineId => {
@@ -1174,10 +1350,8 @@ function buildEmptyData(){
           const parts = stop.split('|');
           const locName = parts[0], t1 = parts[1], t2 = parts[2];
           const t3 = parts[3], t4 = parts[4];
-          
-          // DEFAULT TO BANG SAEN for ALL automatically injected empty routes
-          const latVal = "13.292846";
-          const lngVal = "100.943931";
+          const latVal = parts[5] || "13.2946";
+          const lngVal = parts[6] || "100.9452";
           
           if(t1) data[lineId].t0730.push({ round: data[lineId].t0730.length + 1, time: t1, location: locName, lat: latVal, lng: lngVal, img:"" });
           if(t2) {
@@ -1193,7 +1367,7 @@ function buildEmptyData(){
 }
 
 function downloadCSVTemplate(){
-  const csv = "\uFEFFTime,Location Name,Latitude,Longitude,Image URL\n06:00,Example Stop 1,13.292846,100.943931,https://example.com/image.jpg";
+  const csv = "\uFEFFTime,Location Name,Latitude,Longitude,Image URL\n06:00,Example Stop 1,13.2946,100.9452,https://example.com/image.jpg";
   const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -1218,7 +1392,7 @@ function parseCSV(text){
     const c = lines[i].split(',');
     if(c.length >= 2){
       rows.push({ round:rows.length+1, time:c[0].trim(), location:c[1].trim(),
-                  lat:c[2] ? c[2].trim() : "13.292846", lng:c[3] ? c[3].trim() : "100.943931", img:c[4] ? c[4].trim() : "" });
+                  lat:c[2] ? c[2].trim() : "13.2946", lng:c[3] ? c[3].trim() : "100.9452", img:c[4] ? c[4].trim() : "" });
     }
   }
   if(confirm(`Overwrite THIS TIME SLOT with ${rows.length} rows?`)){
