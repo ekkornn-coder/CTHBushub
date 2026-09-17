@@ -315,6 +315,7 @@ tbody tr:hover{background:var(--row-hover)}
     </div>
     <div class="top-meta">
       <span class="chip" id="chipDate"></span>
+      <span class="chip" id="syncChip" title="สถานะการซิงค์ข้อมูล">● Local</span>
       <span class="chip amber hidden admin-col">Admin mode</span>
     </div>
   </header>
@@ -551,10 +552,11 @@ tbody tr:hover{background:var(--row-hover)}
 /* =====================================================================
    CONFIG
    ===================================================================== */
-// ⚠️ Client-side check only = NOT secure (anyone can read page source).
-// Set USE_SERVER_AUTH = true after adding checkAdmin(pwd) in Code.gs.
-const USE_SERVER_AUTH = false;
-const ADMIN_PASSWORD_SHA256 = "c481fa47652264a8db540465ec0fbc21b38e4e51b92902b8382aaa5c2ea7ed05"; // change password → paste new hash
+// 🔗 Paste your Apps Script Web App URL (…/exec) here. Leave "" = local-only mode.
+const API_URL = "";
+const REFRESH_MS = 3 * 60 * 1000;   // employees re-check for updates every 3 min
+// Fallback only when there is no server (local-only mode). Not secure.
+const ADMIN_PASSWORD_SHA256 = "c481fa47652264a8db540465ec0fbc21b38e4e51b92902b8382aaa5c2ea7ed05";
 
 const DEFAULT_CENTER = [13.10, 100.95];
 const PLACEHOLDER = { lat: 13.2946, lng: 100.9452 };   // old fallback coord = "no real pin"
@@ -644,10 +646,118 @@ function parseLatLngInput(str) {
    ===================================================================== */
 const Store = {
   get(k, fb) { try { const v = localStorage.getItem(k); return v == null ? fb : JSON.parse(v); } catch (e) { return fb; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { toast("บันทึกไม่สำเร็จ (storage เต็ม?)", "err"); return false; } },
+  set(k, v) { Sync.schedule(); try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
   getStr(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } },
-  setStr(k, v) { try { localStorage.setItem(k, v); } catch (e) { toast("บันทึกไม่สำเร็จ", "err"); } }
+  setStr(k, v) { Sync.schedule(); try { localStorage.setItem(k, v); } catch (e) {} }
 };
+
+/* =====================================================================
+   SERVER SYNC  (Google Sheet via Apps Script — see Code.gs)
+   localStorage = offline cache only. Server = source of truth.
+   ===================================================================== */
+const IN_GAS = !!(window.google && google.script && google.script.run);
+
+function api(body) {
+  if (IN_GAS) return new Promise((res, rej) =>
+    google.script.run.withSuccessHandler(res).withFailureHandler(rej).apiHandler(body));
+  if (!API_URL) return Promise.reject(new Error("no_api"));
+  return fetch(API_URL, {
+    method:"POST", redirect:"follow",
+    headers:{ "Content-Type":"text/plain;charset=utf-8" },   // text/plain = no CORS preflight
+    body:JSON.stringify(body)
+  }).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
+}
+
+function setSync(state, extra = "") {
+  const el = $("syncChip"); if (!el) return;
+  const map = {
+    local:["● Local only", ""], loading:["⟳ กำลังโหลด…", ""], ok:["● Synced", "green"],
+    saving:["⟳ กำลังบันทึก…", "amber"], offline:["● Offline (ข้อมูลในเครื่อง)", "amber"], err:["⚠ บันทึกไม่สำเร็จ", "red"]
+  };
+  const [txt, cls] = map[state] || map.local;
+  el.textContent = txt; el.className = "chip " + cls;
+  el.title = extra || "สถานะการซิงค์ข้อมูล";
+}
+
+const Sync = {
+  enabled: () => IN_GAS || !!API_URL,
+  version: 0, loadedAt: 0, muted: true, timer: null, saving: false, pending: false,
+  adminPwd: null, serverEmpty: false,
+
+  snapshot() {
+    return { zonesConfig, contactsData, scheduleData, announceData,
+             banner:Store.getStr(LS.banner), feedback:Store.getStr(LS.feedback) };
+  },
+
+  apply(st) {
+    this.muted = true;
+    zonesConfig = st.zonesConfig || [];
+    contactsData = st.contactsData || {};
+    announceData = st.announceData || {};
+    scheduleData = st.scheduleData || {};
+    normalizeData();
+    saveAll();
+    Store.setStr(LS.banner, st.banner || "");
+    Store.setStr(LS.feedback, st.feedback || "");
+    this.muted = false;
+    refreshAllViews();
+  },
+
+  async load(silent = false) {
+    if (!this.enabled()) { setSync("local"); this.muted = false; return; }
+    if (!silent) setSync("loading");
+    try {
+      const r = await api({ action:"get" });
+      if (!r || !r.ok) throw new Error(r && r.error);
+      this.loadedAt = Date.now();
+      this.version = r.version || 0;
+      this.serverEmpty = !!r.empty;
+      if (r.empty) { this.muted = false; setSync("ok", "เซิร์ฟเวอร์ยังไม่มีข้อมูล"); return; }
+      this.apply(r.state);
+      setSync("ok", "อัปเดตล่าสุด " + (r.updatedAt ? new Date(r.updatedAt).toLocaleString("th-TH") : ""));
+    } catch (e) {
+      this.muted = false;
+      setSync("offline", String(e.message || e));
+      if (!silent) toast("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ — แสดงข้อมูลที่บันทึกในเครื่อง", "warn");
+    }
+  },
+
+  schedule() {
+    if (this.muted || !this.enabled() || !isAdmin) return;
+    setSync("saving");
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.push(), 800);   // batch rapid edits
+  },
+
+  async push() {
+    if (this.saving) { this.pending = true; return; }
+    this.saving = true;
+    try {
+      const r = await api({ action:"save", password:this.adminPwd, baseVersion:this.version, state:this.snapshot() });
+      if (r && r.ok) {
+        this.version = r.version; this.serverEmpty = false;
+        setSync("ok", "บันทึกเวอร์ชัน " + r.version);
+      } else if (r && r.error === "conflict") {
+        setSync("err");
+        alert("มีคนแก้ไขข้อมูลบนเซิร์ฟเวอร์ก่อนคุณ\nระบบจะโหลดข้อมูลล่าสุด — กรุณาแก้ไขรายการล่าสุดอีกครั้ง");
+        await this.load();
+      } else if (r && r.error === "unauthorized") {
+        setSync("err"); toast("รหัส Admin ไม่ถูกต้องหรือถูกเปลี่ยน — กรุณา login ใหม่", "err");
+        isAdmin = false; applyAdmin();
+      } else throw new Error(r && r.error || "save_failed");
+    } catch (e) {
+      setSync("err", String(e.message || e));
+      toast("บันทึกขึ้นเซิร์ฟเวอร์ไม่สำเร็จ — ข้อมูลยังอยู่ในเครื่องนี้ จะลองใหม่เมื่อแก้ไขครั้งถัดไป", "err");
+    }
+    this.saving = false;
+    if (this.pending) { this.pending = false; this.push(); }
+  }
+};
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && !isAdmin && Sync.enabled() && Date.now() - Sync.loadedAt > REFRESH_MS) Sync.load(true);
+});
+setInterval(() => { if (!isAdmin && Sync.enabled() && document.visibilityState === "visible") Sync.load(true); }, REFRESH_MS);
 
 /* =====================================================================
    DATA
@@ -823,12 +933,15 @@ if (!contactsData) { contactsData = {}; zonesConfig.forEach(z => z.lines.forEach
 let scheduleData = Store.get(LS.data, null) || buildSeedData();
 let announceData = Store.get(LS.ann, null) || { global:"สวมหน้ากากอนามัยและรัดเข็มขัดนิรภัยทุกครั้งที่ใช้บริการ" };
 
-zonesConfig.forEach(z => z.lines.forEach(l => {
-  if (!scheduleData[l.id]) scheduleData[l.id] = emptyShifts();
-  SHIFTS.forEach(s => { if (!Array.isArray(scheduleData[l.id][s.id])) scheduleData[l.id][s.id] = []; });
-}));
-Object.values(scheduleData).forEach(sh => Object.values(sh).forEach(sortStops));
-saveAll();
+function normalizeData() {
+  zonesConfig.forEach(z => { z.lines = z.lines || []; z.lines.forEach(l => {
+    if (!scheduleData[l.id]) scheduleData[l.id] = emptyShifts();
+    SHIFTS.forEach(s => { if (!Array.isArray(scheduleData[l.id][s.id])) scheduleData[l.id][s.id] = []; });
+  }); });
+  Object.values(scheduleData).forEach(sh => Object.values(sh).forEach(sortStops));
+}
+normalizeData();
+saveAll();   // Sync is muted during boot → no upload
 
 function buildSeedData() {
   const data = {};
@@ -1589,17 +1702,24 @@ $("modalSaveBtn").onclick = () => {
    ADMIN
    ===================================================================== */
 $("adminBtn").onclick = async () => {
-  if (isAdmin) { isAdmin = false; return applyAdmin(); }
+  if (isAdmin) { isAdmin = false; Sync.adminPwd = null; applyAdmin(); return Sync.load(true); }
   const pwd = prompt("Admin password:");
   if (pwd == null) return;
   let ok = false;
   try {
-    if (USE_SERVER_AUTH && window.google?.script?.run) {
-      ok = await new Promise(res => google.script.run.withSuccessHandler(res).withFailureHandler(() => res(false)).checkAdmin(pwd));
+    if (Sync.enabled()) {
+      const r = await api({ action:"login", password:pwd });
+      ok = !!(r && r.ok);
     } else ok = (await sha256(pwd)) === ADMIN_PASSWORD_SHA256;
-  } catch (e) { toast("ตรวจรหัสไม่ได้ (ต้องเปิดผ่าน https)", "err"); }
+  } catch (e) { return toast("ติดต่อเซิร์ฟเวอร์ไม่ได้ — ยัง login ไม่ได้", "err"); }
   if (!ok) return toast("รหัสผ่านไม่ถูกต้อง", "err");
+  Sync.adminPwd = pwd;
+  await Sync.load(true);                      // edit on top of the latest server data
   isAdmin = true; applyAdmin(); toast("เข้าสู่ Admin mode", "ok");
+  if (Sync.enabled() && Sync.serverEmpty &&
+      confirm("เซิร์ฟเวอร์ยังไม่มีข้อมูล\nอัปโหลดข้อมูลที่อยู่ในเครื่องนี้ขึ้นไปเป็นข้อมูลตั้งต้นเลยไหม?")) {
+    setSync("saving"); Sync.push();
+  }
 };
 
 function applyAdmin() {
@@ -1759,13 +1879,24 @@ $("jsonFileInput").onchange = e => {
       const d = JSON.parse(ev.target.result);
       if (!Array.isArray(d.zonesConfig) || typeof d.scheduleData !== "object") throw 0;
       if (!confirm("กู้คืนข้อมูลจากไฟล์นี้? ข้อมูลปัจจุบันจะถูกแทนที่")) return;
-      zonesConfig = d.zonesConfig; contactsData = d.contactsData || {}; scheduleData = d.scheduleData; announceData = d.announceData || {};
-      Store.setStr(LS.banner, d.banner || ""); Store.setStr(LS.feedback, d.feedback || "");
-      saveAll(); location.reload();
+      Sync.apply(d);
+      if (Sync.enabled()) { setSync("saving"); Sync.push(); }
+      toast("กู้คืนข้อมูลแล้ว", "ok");
     } catch (err) { toast("ไฟล์ backup ไม่ถูกต้อง", "err"); }
   };
   r.readAsText(f); e.target.value = "";
 };
+
+function refreshAllViews() {
+  if (!zonesConfig.some(z => z.id === currentZone)) currentZone = zonesConfig[0]?.id;
+  if (!getLineInfo(currentLine).zone) currentLine = null;
+  applyBanner(); applyFeedback(); initUI();
+  if (RM.map) {
+    if (!getLineInfo(RM.line).zone) { RM.zone = currentZone; RM.line = null; }
+    syncRmSelectors(); renderRouteMap(false);
+  }
+  if (!$("adminAnnounceTab").classList.contains("hidden")) renderAnnounceEditor();
+}
 
 /* =====================================================================
    BOOT
@@ -1774,6 +1905,7 @@ applyBanner();
 applyFeedback();
 initUI();
 switchMainTab("nearest");
+Sync.load();
 
 </script>
 </body>
